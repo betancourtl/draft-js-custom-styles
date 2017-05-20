@@ -74,7 +74,6 @@ const addStyle = prefix => (editorState, style) => {
 };
 
 const removeStyle = prefix => editorState => {
-  console.log('triggered');
   return mapSelectedCharacters(filterDynamicStyle(prefix))(editorState);
 };
 
@@ -89,11 +88,14 @@ const toggleStyle = prefix => (editorState, value) => {
   return EditorState.forceSelection(editorStateWithoutColorStyles, editorState.getSelection());
 };
 
-const styleFn = (prefix, cssProp) => currentStyles => {
-  if (!currentStyles.size) {
+/**
+ *  style is an OrderedSet type
+ */
+const styleFn = (prefix, cssProp) => style => {
+  if (!style.size) {
     return {};
   }
-  const value = currentStyles.filter(val => val.startsWith(prefix)).first();
+  const value = style.filter(val => val.startsWith(prefix)).first();
   if (value) {
     const newVal = value.replace(prefix, '');
     return { [camelCase(cssProp)]: newVal };
