@@ -16,7 +16,7 @@
     "prepublish": "npm run build",
     "webpack-build": "webpack",
     "deploy": "npm run webpack-build && gh-pages -d site",
-    "release": "np || deploy"
+    "release": "np && deploy"
   },
   "babel": {
     "presets": [
