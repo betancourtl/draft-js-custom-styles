@@ -12,11 +12,11 @@
     "start": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "build": "babel src -d build",
     "test": "mocha --compilers js:babel-core/register --require ./config/test_helper.js --recursive ./tests/*.spec.js",
-    "test:watch": "npm run test -- --watch",
-    "prepublish": "npm run build",
+    "test:watch": "yarn test -- --watch",
+    "prepublish": "yarn build",
     "webpack-build": "webpack",
-    "deploy": "npm run webpack-build && gh-pages -d site",
-    "release": "np && deploy"
+    "deploy": "yarn webpack-build && gh-pages -d docs",
+    "release": "np && yarn deploy"
   },
   "babel": {
     "presets": [
