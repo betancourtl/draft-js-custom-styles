@@ -46,7 +46,6 @@ class RichEditor extends React.Component {
 
   render() {
     const { editorState } = this.state;
-    console.log(JSON.stringify(convertToRaw(this.state.editorState.getCurrentContent()), null, 2));
     const inlineStyles = exporter(this.state.editorState);
     const html = stateToHTML(this.state.editorState.getCurrentContent(), { inlineStyles });
     const options = x => x.map(fontSize => {
@@ -54,7 +53,7 @@ class RichEditor extends React.Component {
     });
     return (
       <div style={{ display: 'flex', padding: '15px' }}>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: '1 0 25%' }}>
           <button
             onClick={this.removeFontSize}
           >
@@ -75,7 +74,7 @@ class RichEditor extends React.Component {
             {options(['uppercase', 'capitalize'])}
           </select>
         </div>
-        <div style={{ flex: '2 1 0' }}>
+        <div style={{ flex: '1 0 25%' }}>
           <h2>Draft-JS Editor</h2>
           <Editor
             customStyleFn={customStyleFn}
@@ -87,9 +86,17 @@ class RichEditor extends React.Component {
             spellCheck
           />
         </div>
-        <div style={{ flex: '2 1 0' }}>
+        <div style={{ flex: '1 0 25%' }}>
           <h2>Exported To HTML</h2>
           <div dangerouslySetInnerHTML={{ __html: html }}/>
+        </div>
+        <div style={{ flex: '1 0 25%' }}>
+          <h2>ContentState</h2>
+          <div>
+            <pre>
+              {JSON.stringify(convertToRaw(this.state.editorState.getCurrentContent()), null, 2)}
+            </pre>
+          </div>
         </div>
       </div>
     );
