@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/webdeveloperpr/draft-js-custom-styles.svg?branch=master)](https://travis-ci.org/webdeveloperpr/draft-js-custom-styles)
 # draft-js-custom-styles
 
 This package allows you to completely remove the customStyleMap functionality with a more dynamic one, using customStyleFn.
