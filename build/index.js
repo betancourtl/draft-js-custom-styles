@@ -99,7 +99,6 @@ var addStyle = function addStyle(prefix) {
 
 var removeStyle = function removeStyle(prefix) {
   return function (editorState) {
-    console.log('triggered');
     return mapSelectedCharacters(filterDynamicStyle(prefix))(editorState);
   };
 };
@@ -117,12 +116,15 @@ var toggleStyle = function toggleStyle(prefix) {
   };
 };
 
+/**
+ *  style is an OrderedSet type
+ */
 var styleFn = function styleFn(prefix, cssProp) {
-  return function (currentStyles) {
-    if (!currentStyles.size) {
+  return function (style) {
+    if (!style.size) {
       return {};
     }
-    var value = currentStyles.filter(function (val) {
+    var value = style.filter(function (val) {
       return val.startsWith(prefix);
     }).first();
     if (value) {
