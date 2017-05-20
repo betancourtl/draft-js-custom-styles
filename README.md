@@ -9,28 +9,46 @@ This package allows you to completely remove the customStyleMap functionality wi
  $ npm i --save draft-js-export-html
  ```
  
- ##How to use?
+ ## How to use?
  
  Pass an array of css properties to createStyles fn that you want to create styles for.
  That returns an object.
  
- 1. styles - <object> - Contains styles[cssProp].toggle function, styles[cssProp].current property
- 2. customStyleFn - <function> - Pass this to the draft-js editor as a a customStyleFn property `<Editor/>`
- 3. exporter - <function> - Accepts `EditorState`  
  ```javascript
  import createStyles from 'draft-js-custom-styles';
  const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'text-transform']);
  ```
  
+ Returned styles object will contain the toggle functions for each camel-cased css property
+ 
+ ```javascript
+ styles : { 
+   fontSize: {
+     toggle,
+     current,
+   },
+   color: {
+     toggle,
+     current,
+   },
+   textTransform: {
+     toggle,
+     current,
+   }
+ }
+```
+ 
  ## How to use the exporter?
  
  If you are using `draft-js-export-html`. you can pass the custom styles using the export function 
- ```javascript
+
+```javascript
      const inlineStyles = exporter(this.state.editorState);
      const html = stateToHTML(this.state.editorState.getCurrentContent(), { inlineStyles });
  ```
 
 ## Example
+
 ```javascript
 import React from 'react';
 import { Editor, EditorState } from 'draft-js';
