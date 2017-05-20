@@ -1,7 +1,7 @@
 import React from 'react';
 import { Editor, EditorState } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
-import { createStyles } from './features/customStyles';
+import createStyles from 'draft-js-custom-styles';
 
 const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'text-transform']);
 

@@ -3,17 +3,40 @@ Create custom inline styles without having to define a customStyleMap
 
 This package allows you to completely remove the customStyleMap functionality with a more dynamic one, using customStyleFn.
 
-## How to use 
+## How to install
+ 
+ ```
+ $ npm i --save draft-js-export-html
+ ```
+ 
+ ##How to use?
+ 
+ Pass an array of css properties to createStyles fn that you want to create styles for.
+ That returns an object.
+ 
+ 1. styles - <object> - Contains styles[cssProp].toggle function, styles[cssProp].current property
+ 2. customStyleFn - <function> - Pass this to the draft-js editor as a a customStyleFn property `<Editor/>`
+ 3. exporter - <function> - Accepts `EditorState`  
+ ```javascript
+ import createStyles from 'draft-js-custom-styles';
+ const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'text-transform']);
+ ```
+ 
+ ## How to use the exporter?
+ 
+ If you are using `draft-js-export-html`. you can pass the custom styles using the export function 
+ ```javascript
+     const inlineStyles = exporter(this.state.editorState);
+     const html = stateToHTML(this.state.editorState.getCurrentContent(), { inlineStyles });
+ ```
 
+## Example
 ```javascript
 import React from 'react';
 import { Editor, EditorState } from 'draft-js';
-
-// import the createStyles function
-import { createStyles } from './features/customStyles';
-
-// Define css properties you want to toggle, add, remove
-const { styles, customStyleFn } = createStyles(['font-size', 'color']);
+import { stateToHTML } from 'draft-js-export-html';
+import createStyles from 'draft-js-custom-styles';
+const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'text-transform']);
 
 class RichEditor extends React.Component {
   constructor(props) {
@@ -25,39 +48,45 @@ class RichEditor extends React.Component {
     this.updateEditorState = editorState => this.setState({ editorState });
   }
 
-// Define the toggle function for fontSize
   toggleFontSize = fontSize => {
     const newEditorState = styles.fontSize.toggle(this.state.editorState, fontSize);
 
     return this.updateEditorState(newEditorState);
   };
 
-// Define the toggle function for color
   toggleColor = color => {
     const newEditorState = styles.color.toggle(this.state.editorState, color);
+
+    return this.updateEditorState(newEditorState);
+  };
+  toggleTextTransform = color => {
+    const newEditorState = styles.textTransform.toggle(this.state.editorState, color);
 
     return this.updateEditorState(newEditorState);
   };
 
   render() {
     const { editorState } = this.state;
+    const inlineStyles = exporter(this.state.editorState);
+    const html = stateToHTML(this.state.editorState.getCurrentContent(), { inlineStyles });
     const options = x => x.map(fontSize => {
       return <option key={fontSize} value={fontSize}>{fontSize}</option>;
     });
     return (
-      <div className="text-editor-component">
-        
-         {# Define here the font-sizes #}
-        <select onChange={e => this.toggleFontSize(e.target.value)}>
-          {options(['12px', '24px', '36px'])}
-        </select>
-
-        {# Define here the colors #}
-        <select onChange={e => this.toggleColor(e.target.value)}>
-          {options(['green', 'blue', 'red'])}
-        </select>
-        <div className="text-editor">
-        {# Pass the customStyleFn here  #}
+      <div style={{ display: 'flex', padding: '15px' }}>
+        <div style={{ flex: 1 }}>
+          <select onChange={e => this.toggleFontSize(e.target.value)}>
+            {options(['12px', '24px', '36px', '50px'])}
+          </select>
+          <select onChange={e => this.toggleColor(e.target.value)}>
+            {options(['green', 'blue', 'red', 'purple'])}
+          </select>
+          <select onChange={e => this.toggleColor(e.target.value)}>
+            {options(['uppercase', 'capitalize'])}
+          </select>
+        </div>
+        <div style={{ flex: '2 1 0' }}>
+          <h2>Draft-JS Editor</h2>
           <Editor
             customStyleFn={customStyleFn}
             editorState={editorState}
@@ -67,6 +96,10 @@ class RichEditor extends React.Component {
             readOnly={this.state.readOnly}
             spellCheck
           />
+        </div>
+        <div style={{ flex: '2 1 0' }}>
+          <h2>Exported To HTML</h2>
+          <div dangerouslySetInnerHTML={{ __html: html }}/>
         </div>
       </div>
     );

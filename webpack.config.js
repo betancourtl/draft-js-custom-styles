@@ -1,11 +1,11 @@
 module.exports = {
   entry: [
-    './src/index.js'
+    './index.js',
   ],
   output: {
     path: __dirname,
     publicPath: '/',
-    filename: 'bundle.js'
+    filename: 'bundle.js',
   },
   module: {
     loaders: [
@@ -14,7 +14,6 @@ module.exports = {
         loader: 'babel',
         query: {
           presets: ['react', 'es2015', 'stage-1'],
-          plugins:['transform-decorators-legacy'],
         },
       },
       {
@@ -36,11 +35,11 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ['', '.js', '.jsx']
+    extensions: ['', '.js', '.jsx'],
   },
   devServer: {
     historyApiFallback: true,
-    contentBase: './'
+    contentBase: './',
   },
   eslint: {
     failOnWarning: false,

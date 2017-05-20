@@ -1,13 +1,11 @@
 {
   "parser": "babel-eslint",
   "extends": [
-    "airbnb",
-    "plugin:flowtype/recommended"
+    "airbnb"
   ],
   "installedESLint": true,
   "plugins": [
     "react",
-    "flowtype",
     "jsx-a11y"
   ],
   "rules": {
