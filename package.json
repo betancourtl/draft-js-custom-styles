@@ -14,7 +14,9 @@
     "test": "mocha --compilers js:babel-core/register --require ./config/test_helper.js --recursive ./tests/*.spec.js",
     "test:watch": "npm run test -- --watch",
     "prepublish": "npm run build",
-    "release": "np"
+    "release": "np",
+    "webpack-build": "webpack",
+    "deploy" : "npm run webpack-build && gh-pages -d site"
   },
   "babel": {
     "presets": [
@@ -47,6 +49,7 @@
     "eslint-plugin-jsx-a11y": "2.2.2",
     "eslint-plugin-react": "6.3.0",
     "file-loader": "0.9.0",
+    "gh-pages": "1.0.0",
     "jsdom": "^8.1.0",
     "mocha": "^2.4.5",
     "np": "2.15.0",
@@ -70,7 +73,7 @@
   "bugs": {
     "url": "https://github.com/webdeveloperpr/draft-js-custom-styles/issues"
   },
-  "homepage": "https://github.com/webdeveloperpr/draft-js-custom-styles#readme",
+  "homepage": "https://webdeveloperpr.github.io/draft-js-custom-styles",
   "keywords": [
     "Create",
     "dynamic",
