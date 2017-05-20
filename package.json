@@ -1,6 +1,6 @@
 {
   "name": "draft-js-custom-styles",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "Create dynamic inline styles for draft-js",
   "main": "build/index.js",
   "repository": {
