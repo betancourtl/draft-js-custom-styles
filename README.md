@@ -48,7 +48,26 @@ npm i --save draft-js-custom-styles
    }
  }
 ```
+
+**API**
+
+```
+ const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'text-transform']);
+```
+**styles API**
+
+ - .add(editorState, cssPropertyVal)
+ Adds a new customStyle
  
+ - .remove(editorState)
+ Removes a customStyle
+ 
+ - .toggle(editorState, cssPropVal)
+ Toggles a customStyle
+
+ - .current(editorState)
+ Returns the current value of the custom style
+
  **How to use the exporter?**
  
  If you are using `draft-js-export-html`. you can pass the custom styles using the export function 
