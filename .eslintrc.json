@@ -1,0 +1,72 @@
+{
+  "parser": "babel-eslint",
+  "extends": [
+    "airbnb",
+    "plugin:flowtype/recommended"
+  ],
+  "installedESLint": true,
+  "plugins": [
+    "react",
+    "flowtype",
+    "jsx-a11y"
+  ],
+  "rules": {
+    "comma-dangle": [
+      "error",
+      "always-multiline"
+    ],
+    "arrow-body-style": "off",
+    "func-style": [
+      "error",
+      "expression"
+    ],
+    "func-names": [
+      "off"
+    ],
+    "no-underscore-dangle": "off",
+    "new-cap": "off",
+    "no-console": "off",
+    "curly": "error",
+    "react/jsx-no-bind": [
+      "error",
+      {
+        "allowArrowFunctions": true
+      }
+    ],
+    "react/prop-types": "warn",
+    "prefer-const": "off",
+    "no-alert": "off",
+    "react/jsx-first-prop-new-line": "off",
+    "react/forbid-prop-types": "off",
+    "react/prefer-stateless-function": "off",
+    "no-debugger": "off",
+    "no-restricted-syntax": "off",
+    "no-confusing-arrow": "off",
+    "arrow-parens": [
+      "error",
+      "as-needed"
+    ],
+    "no-use-before-define": "off",
+    "jsx-a11y/img-has-alt": "off",
+    "import/no-unresolved": 2,
+    "import/named": 2,
+    "import/default": 1,
+    "import/export": 2,
+    "react/jsx-filename-extension": [
+      1,
+      {
+        "extensions": [
+          ".js",
+          ".jsx"
+        ]
+      }
+    ],
+    "react/jsx-space-before-closing": "off"
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "mocha": true,
+    "es6": true
+  }
+}

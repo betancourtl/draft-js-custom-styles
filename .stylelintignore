@@ -1,0 +1,9 @@
+# This is used by stylelint and stylefmt to ignore going over these
+# files and folders
+
+# folders
+node_modules/
+build/
+shared/assets/siteTemplate/dist/
+shared/assets/siteTemplate/src/assets/
+siteTemplate/dist/
