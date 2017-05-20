@@ -1,6 +1,7 @@
 import React from 'react';
-import { Editor, EditorState, convertToRaw } from 'draft-js';
+import { Editor, convertToRaw } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
+import Raw from 'draft-js-raw-content-state';
 import createStyles from '../src';
 
 const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'text-transform']);
@@ -9,7 +10,7 @@ class RichEditor extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      editorState: EditorState.createEmpty(),
+      editorState: new Raw().addBlock('Hello World', 'header-two').toEditorState(),
       readOnly: false,
     };
     this.updateEditorState = editorState => this.setState({ editorState });
@@ -64,11 +65,12 @@ class RichEditor extends React.Component {
           >
             Add FontSize
           </button>
+          r
           <select onChange={e => this.toggleFontSize(e.target.value)}>
-            {options(['12px', '24px', '36px', '50px'])}
+            {options(['12px', '24px', '36px', '50px', '72px'])}
           </select>
           <select onChange={e => this.toggleColor(e.target.value)}>
-            {options(['green', 'blue', 'red', 'purple'])}
+            {options(['green', 'blue', 'red', 'purple', 'orange'])}
           </select>
           <select onChange={e => this.toggleTextTransform(e.target.value)}>
             {options(['uppercase', 'capitalize'])}
