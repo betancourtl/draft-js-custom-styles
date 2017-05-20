@@ -25,6 +25,9 @@
   },
   "author": "Luis Betancourt <webdeveloperpr@gmail.com> (https://github.com/webdeveloperpr)",
   "license": "ISC",
+  "engines": {
+    "node": ">=4.2.4"
+  },
   "devDependencies": {
     "babel-cli": "6.24.1",
     "babel-core": "^6.2.1",
