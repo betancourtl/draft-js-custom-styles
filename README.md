@@ -6,6 +6,8 @@ This package allows you to completely remove the customStyleMap functionality wi
 
 - [Installation](#installation)
 - [Usage](#usage)
+- [API](#api)
+- [Example](#example)
 - [Support](#support)
 - [Contributing](#contributing)
 
@@ -49,12 +51,12 @@ npm i --save draft-js-custom-styles
  }
 ```
 
-**API**
+## API
 
-```
+```javascript
  const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'text-transform']);
 ```
-**styles API**
+**styles**
 
  - .add(editorState, cssPropertyVal)
  Adds a new customStyle
@@ -77,7 +79,7 @@ npm i --save draft-js-custom-styles
      const html = stateToHTML(this.state.editorState.getCurrentContent(), { inlineStyles });
  ```
  
- **Example**
+## Example
  
  ```javascript
  import React from 'react';
