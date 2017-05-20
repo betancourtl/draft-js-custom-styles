@@ -151,8 +151,6 @@ var createCustomStyles = exports.createCustomStyles = function createCustomStyle
     var copy = _extends({}, acc);
     var style = makeDynamicStyles(snakeCased, prop);
     copy[camelCased] = {
-      add: style.addStyle,
-      remove: style.removeStyle,
       toggle: style.toggleStyle,
       current: style.currentStyle,
       styleFn: style.styleFn
