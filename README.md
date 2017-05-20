@@ -1,5 +1,4 @@
 # draft-js-custom-styles
-Create custom inline styles without having to define a customStyleMap
 
 This package allows you to completely remove the customStyleMap functionality with a more dynamic one, using customStyleFn.
 
