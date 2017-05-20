@@ -3,7 +3,7 @@ module.exports = {
     './index.js',
   ],
   output: {
-    path: __dirname + '/site',
+    path: __dirname + '/docs', // docs is required to publish to github pages
     publicPath: '/',
     filename: 'bundle.js',
   },

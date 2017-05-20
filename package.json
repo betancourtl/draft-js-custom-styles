@@ -14,9 +14,9 @@
     "test": "mocha --compilers js:babel-core/register --require ./config/test_helper.js --recursive ./tests/*.spec.js",
     "test:watch": "npm run test -- --watch",
     "prepublish": "npm run build",
-    "release": "np",
     "webpack-build": "webpack",
-    "deploy" : "npm run webpack-build && gh-pages -d site"
+    "deploy" : "npm run webpack-build && gh-pages -d site",
+    "release": "np && deploy"
   },
   "babel": {
     "presets": [
@@ -61,11 +61,11 @@
     "url-loader": "0.5.7",
     "watch": "1.0.2",
     "webpack": "1.13.2",
-    "webpack-dev-server": "^1.14.0"
+    "webpack-dev-server": "^1.14.0",
+    "draft-js-export-html": "0.5.2"
   },
   "dependencies": {
     "draft-js": "0.10.0",
-    "draft-js-export-html": "0.5.2",
     "immutable": "3.8.1",
     "lodash.camelcase": "4.3.0",
     "lodash.snakecase": "4.1.1"
