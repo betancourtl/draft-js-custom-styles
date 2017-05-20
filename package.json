@@ -1,18 +1,18 @@
 {
-  "name": "redux-simple-starter",
+  "name": "draft-js-custom-styles",
   "version": "1.0.0",
-  "description": "Simple starter package for Redux with React and Babel support",
+  "description": "Create dynamic inline styles for draft-js",
   "main": "index.js",
-  "repository": "git@github.com:StephenGrider/ReduxSimpleStarter.git",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/webdeveloperpr/draft-js-custom-styles.git"
+  },
   "scripts": {
     "start": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
-    "server": "nodemon server.js",
     "test": "mocha --compilers js:babel-core/register --require ./config/test_helper.js --recursive ./src/**/*.spec.js",
-    "test:watch": "npm run test -- --watch",
-    "lint": "./node_modules/eslint/bin/eslint.js . --ext .js --ext .jsx || true",
-    "flow": "./node_modules/flow-bin/vendor/flow; test $? -eq 0 -o $? -eq 2"
+    "test:watch": "npm run test -- --watch"
   },
-  "author": "",
+  "author": "Luis Betancourt <webdeveloperpr@gmail.com> (https://github.com/webdeveloperpr)",
   "license": "ISC",
   "devDependencies": {
     "babel-core": "^6.2.1",
@@ -30,30 +30,38 @@
     "eslint-plugin-import": "1.16.0",
     "eslint-plugin-jsx-a11y": "2.2.2",
     "eslint-plugin-react": "6.3.0",
-    "express": "4.14.0",
     "file-loader": "0.9.0",
     "mocha": "^2.4.5",
     "sass-loader": "4.0.2",
     "style-loader": "0.13.1",
     "url-loader": "0.5.7",
-    "webpack-dev-server": "^1.14.0"
+    "webpack": "1.13.2",
+    "webpack-dev-server": "^1.14.0",
+    "chai": "^3.5.0",
+    "react-addons-test-utils": "15.5.0",
+    "jsdom": "^8.1.0",
+    "babel-plugin-transform-decorators-legacy": "1.3.4",
+    "babel-preset-stage-1": "^6.1.18"
   },
   "dependencies": {
-    "babel-plugin-transform-decorators-legacy": "1.3.4",
-    "babel-preset-stage-1": "^6.1.18",
-    "chai": "^3.5.0",
-    "classnames": "2.2.5",
     "draft-js": "0.10.0",
     "draft-js-export-html": "0.5.2",
-    "draft-js-plugins-editor": "2.0.0-beta1",
     "immutable": "3.8.1",
-    "jsdom": "^8.1.0",
     "lodash.camelcase": "4.3.0",
     "lodash.snakecase": "4.1.1",
-    "react": "latest",
-    "react-addons-test-utils": "latest",
-    "react-color": "2.11.1",
-    "react-dom": "latest",
-    "webpack": "1.13.2"
-  }
+    "react": "15.5.0",
+    "react-dom": "15.5.0"
+  },
+  "bugs": {
+    "url": "https://github.com/webdeveloperpr/draft-js-custom-styles/issues"
+  },
+  "homepage": "https://github.com/webdeveloperpr/draft-js-custom-styles",
+  "keywords": [
+    "Create",
+    "dynamic",
+    "custom",
+    "styles",
+    "for",
+    "draft-js"
+  ]
 }
