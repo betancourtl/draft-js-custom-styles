@@ -30,16 +30,16 @@ npm i --save draft-js-custom-styles
  ```javascript
  
  // color
- cont toggleColor = styles.color.toggle;
- cont addColor = styles.color.add;
- cont removeColor = styles.color.remove;
- cont currentColor = styles.color.current;
+ const toggleColor = styles.color.toggle;
+ const addColor = styles.color.add;
+ const removeColor = styles.color.remove;
+ const currentColor = styles.color.current;
 
- // fontSize
- cont toggleFontSize = styles.fontSize.toggle;
- cont addFontSize = styles.fontSize.add;
- cont removeFontSize = styles.fontSize.remove;
- cont currentFontSize = styles.fontSize.current
+ // sfontSize
+ const toggleFontSize = styles.fontSize.toggle;
+ const addFontSize = styles.fontSize.add;
+ const removeFontSize = styles.fontSize.remove;
+ const currentFontSize = styles.fontSize.current
 ```
 
 ## API
