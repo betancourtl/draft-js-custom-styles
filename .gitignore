@@ -195,7 +195,6 @@ jspm_packages
 Session.vim
 # temporary
 .netrwhist
-*~
 # auto-generated tag files
 tags
 
