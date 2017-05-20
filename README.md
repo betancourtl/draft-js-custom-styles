@@ -23,32 +23,22 @@ npm i --save draft-js-custom-styles
  
  ```javascript
  import createStyles from 'draft-js-custom-styles';
- const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'text-transform']);
+ const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color']);
  ```
- 
- Returned styles object will contain the toggle, add, remove functions for each camel-cased css property
+ You will have access to new functions
  
  ```javascript
- styles : { 
-   fontSize: {
-     add,
-     remove,
-     toggle,
-     current,
-   },
-   color: {
-     add,
-     remove,
-     toggle,
-     current,
-   },
-   textTransform: {
-     add,
-     remove,
-     toggle,
-     current,
-   }
- }
+ 
+ // color
+ cont toggleColor = styles.color.toggle;
+ cont addColor = styles.color.add;
+ cont removeColor = styles.color.remove;
+
+ // fontSize
+ cont toggleFontSize = styles.fontSize.toggle;
+ cont addFontSize = styles.fontSize.add;
+ cont removeFontSize = styles.fontSize.remove;
+
 ```
 
 ## API
