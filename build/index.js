@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.createCustomStyles = exports.mapSelectedCharacters = undefined;
+exports.inlineStyleExporter = exports.createInlineStyleExportObject = exports.getInlineStyles = exports.customStyleFns = exports.createCustomStyles = exports.mapSelectedCharacters = undefined;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -25,8 +25,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 // This functionality has been taken from draft-js and modified for re-usability purposes.
 // Maps over the selected characters, and applies a function to each character.
-// Characters are of type CharacterMetadata. Look up the draftJS API to see what
-// operations can be performed on characters.
+// Characters are of type CharacterMetadata.
 var mapSelectedCharacters = exports.mapSelectedCharacters = function mapSelectedCharacters(callback) {
   return function (editorState) {
     var contentState = editorState.getCurrentContent();
@@ -81,37 +80,45 @@ var mapSelectedCharacters = exports.mapSelectedCharacters = function mapSelected
   };
 };
 
-var makeDynamicStyles = function makeDynamicStyles() {
-  var prefix = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'DEFAULT_PROP';
-  var cssProp = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'cssProperty';
-
-  var filterDynamicStyle = function filterDynamicStyle(char) {
+var filterDynamicStyle = function filterDynamicStyle(prefix) {
+  return function (char) {
     var charStyles = char.get('style');
     var filteredStyles = charStyles.filter(function (style) {
       return !style.startsWith(prefix);
     });
     return char.set('style', filteredStyles);
   };
-  var addStyle = function addStyle(editorState, style) {
-    var newContentState = _draftJs.Modifier.applyInlineStyle(editorState.getCurrentContent(), editorState.getSelection(), style);
+};
+
+var addStyle = function addStyle(prefix) {
+  return function (editorState, style) {
+    var newContentState = _draftJs.Modifier.applyInlineStyle(editorState.getCurrentContent(), editorState.getSelection(), prefix + style);
     return _draftJs.EditorState.push(editorState, newContentState, 'change-inline-style');
   };
-  var removeStyle = function removeStyle(editorState) {
-    return mapSelectedCharacters(filterDynamicStyle)(editorState);
-  };
+};
 
-  var toggleStyle = function toggleStyle(editorState, value) {
+var removeStyle = function removeStyle(prefix) {
+  return function (editorState) {
+    console.log('triggered');
+    return mapSelectedCharacters(filterDynamicStyle(prefix))(editorState);
+  };
+};
+
+var toggleStyle = function toggleStyle(prefix) {
+  return function (editorState, value) {
     var style = prefix + value;
-    var editorStateWithoutColorStyles = removeStyle(editorState);
+    var editorStateWithoutColorStyles = removeStyle(prefix)(editorState);
     var currentInlineStyles = editorState.getCurrentInlineStyle();
     if (!currentInlineStyles.has(style)) {
-      return addStyle(editorStateWithoutColorStyles, style);
+      return addStyle(prefix)(editorStateWithoutColorStyles, value);
     }
 
     return _draftJs.EditorState.forceSelection(editorStateWithoutColorStyles, editorState.getSelection());
   };
+};
 
-  var styleFn = function styleFn(currentStyles) {
+var styleFn = function styleFn(prefix, cssProp) {
+  return function (currentStyles) {
     if (!currentStyles.size) {
       return {};
     }
@@ -124,7 +131,10 @@ var makeDynamicStyles = function makeDynamicStyles() {
     }
     return {};
   };
-  var currentStyle = function currentStyle(editorState) {
+};
+
+var currentStyle = function currentStyle(prefix) {
+  return function (editorState) {
     var selectionStyles = editorState.getCurrentInlineStyle();
     if (!selectionStyles.size) {
       return '';
@@ -136,24 +146,19 @@ var makeDynamicStyles = function makeDynamicStyles() {
 
     return result ? result.replace(prefix, '') : result;
   };
-
-  return {
-    toggleStyle: toggleStyle,
-    currentStyle: currentStyle,
-    styleFn: styleFn
-  };
 };
 
 var createCustomStyles = exports.createCustomStyles = function createCustomStyles(prefix, conf) {
   return conf.reduce(function (acc, prop) {
     var camelCased = (0, _lodash2.default)(prop);
-    var snakeCased = '' + prefix + (0, _lodash4.default)(prop).toUpperCase() + '_';
+    var newPrefix = '' + prefix + (0, _lodash4.default)(prop).toUpperCase() + '_';
     var copy = _extends({}, acc);
-    var style = makeDynamicStyles(snakeCased, prop);
     copy[camelCased] = {
-      toggle: style.toggleStyle,
-      current: style.currentStyle,
-      styleFn: style.styleFn
+      add: addStyle(newPrefix),
+      remove: removeStyle(newPrefix),
+      toggle: toggleStyle(newPrefix),
+      current: currentStyle(newPrefix),
+      styleFn: styleFn(newPrefix, prop)
     };
 
     return copy;
@@ -161,7 +166,7 @@ var createCustomStyles = exports.createCustomStyles = function createCustomStyle
 };
 
 // customStyleFns
-var customStyleFns = function customStyleFns(fnList) {
+var customStyleFns = exports.customStyleFns = function customStyleFns(fnList) {
   return function (prefixedStyle) {
     return fnList.reduce(function (css, fn) {
       return _extends({}, css, fn(prefixedStyle));
@@ -170,7 +175,7 @@ var customStyleFns = function customStyleFns(fnList) {
 };
 
 // exporter
-var getInlineStyles = function getInlineStyles(acc, block) {
+var getInlineStyles = exports.getInlineStyles = function getInlineStyles(acc, block) {
   var styleRanges = block.inlineStyleRanges;
   if (styleRanges && styleRanges.length) {
     var result = styleRanges.map(function (style) {
@@ -182,7 +187,7 @@ var getInlineStyles = function getInlineStyles(acc, block) {
   return acc;
 };
 
-var createInlineStyleExportObject = function createInlineStyleExportObject(prefix) {
+var createInlineStyleExportObject = exports.createInlineStyleExportObject = function createInlineStyleExportObject(prefix) {
   return function (acc, style) {
     var regex = new RegExp(prefix + '(.+)_(.+)');
     var match = style.match(regex);
@@ -196,7 +201,7 @@ var createInlineStyleExportObject = function createInlineStyleExportObject(prefi
   };
 };
 
-var inlineStyleExporter = function inlineStyleExporter(prefix) {
+var inlineStyleExporter = exports.inlineStyleExporter = function inlineStyleExporter(prefix) {
   return function (editorState) {
     var inlineStyles = (0, _draftJs.convertToRaw)(editorState.getCurrentContent()).blocks.reduce(getInlineStyles, []);
     if (!inlineStyles.length) return {};
@@ -211,8 +216,8 @@ exports.default = function (conf) {
   var fnList = Object.keys(styles).map(function (style) {
     return styles[style].styleFn;
   });
-  var customStyleFn = customStyleFns(fnList); // (prefixed Style goes here) this is curried;
-  var exporter = inlineStyleExporter(prefix); // curried accepts EditorState
+  var customStyleFn = customStyleFns(fnList);
+  var exporter = inlineStyleExporter(prefix);
 
   return {
     styles: styles,

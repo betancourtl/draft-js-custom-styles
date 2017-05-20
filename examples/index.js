@@ -1,7 +1,7 @@
 import React from 'react';
-import { Editor, EditorState } from 'draft-js';
+import { Editor, EditorState, convertToRaw } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
-import createStyles from 'draft-js-custom-styles';
+import createStyles from '../src';
 
 const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'text-transform']);
 
@@ -21,6 +21,18 @@ class RichEditor extends React.Component {
     return this.updateEditorState(newEditorState);
   };
 
+  removeFontSize = () => {
+    const newEditorState = styles.fontSize.remove(this.state.editorState);
+
+    return this.updateEditorState(newEditorState);
+  };
+
+  addFontSize = val => () => {
+    const newEditorState = styles.fontSize.add(this.state.editorState, val);
+
+    return this.updateEditorState(newEditorState);
+  };
+
   toggleColor = color => {
     const newEditorState = styles.color.toggle(this.state.editorState, color);
 
@@ -34,6 +46,7 @@ class RichEditor extends React.Component {
 
   render() {
     const { editorState } = this.state;
+    console.log(JSON.stringify(convertToRaw(this.state.editorState.getCurrentContent()), null, 2));
     const inlineStyles = exporter(this.state.editorState);
     const html = stateToHTML(this.state.editorState.getCurrentContent(), { inlineStyles });
     const options = x => x.map(fontSize => {
@@ -42,13 +55,23 @@ class RichEditor extends React.Component {
     return (
       <div style={{ display: 'flex', padding: '15px' }}>
         <div style={{ flex: 1 }}>
+          <button
+            onClick={this.removeFontSize}
+          >
+            Remove FontSize
+          </button>
+          <button
+            onClick={this.addFontSize('24px')}
+          >
+            Add FontSize
+          </button>
           <select onChange={e => this.toggleFontSize(e.target.value)}>
             {options(['12px', '24px', '36px', '50px'])}
           </select>
           <select onChange={e => this.toggleColor(e.target.value)}>
             {options(['green', 'blue', 'red', 'purple'])}
           </select>
-          <select onChange={e => this.toggleColor(e.target.value)}>
+          <select onChange={e => this.toggleTextTransform(e.target.value)}>
             {options(['uppercase', 'capitalize'])}
           </select>
         </div>

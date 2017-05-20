@@ -46,10 +46,6 @@
     ],
     "no-use-before-define": "off",
     "jsx-a11y/img-has-alt": "off",
-    "import/no-unresolved": 2,
-    "import/named": 2,
-    "import/default": 1,
-    "import/export": 2,
     "react/jsx-filename-extension": [
       1,
       {

@@ -5,8 +5,7 @@ import snakeCase from 'lodash.snakecase';
 
 // This functionality has been taken from draft-js and modified for re-usability purposes.
 // Maps over the selected characters, and applies a function to each character.
-// Characters are of type CharacterMetadata. Look up the draftJS API to see what
-// operations can be performed on characters.
+// Characters are of type CharacterMetadata.
 export const mapSelectedCharacters = callback => editorState => {
   const contentState = editorState.getCurrentContent();
   const selectionState = editorState.getSelection();
@@ -59,73 +58,71 @@ export const mapSelectedCharacters = callback => editorState => {
   return EditorState.push(editorState, newContentState, 'change-inline-style');
 };
 
-const makeDynamicStyles = (prefix = 'DEFAULT_PROP', cssProp = 'cssProperty') => {
-  const filterDynamicStyle = char => {
-    const charStyles = char.get('style');
-    const filteredStyles = charStyles.filter(style => !style.startsWith(prefix));
-    return char.set('style', filteredStyles);
-  };
-  const addStyle = (editorState, style) => {
-    const newContentState = Modifier.applyInlineStyle(
-      editorState.getCurrentContent(),
-      editorState.getSelection(),
-      style
-    );
-    return EditorState.push(editorState, newContentState, 'change-inline-style');
-  };
-  const removeStyle =
-    editorState => mapSelectedCharacters(filterDynamicStyle)(editorState);
+const filterDynamicStyle = prefix => char => {
+  const charStyles = char.get('style');
+  const filteredStyles = charStyles.filter(style => !style.startsWith(prefix));
+  return char.set('style', filteredStyles);
+};
 
-  const toggleStyle = (editorState, value) => {
-    const style = prefix + value;
-    const editorStateWithoutColorStyles = removeStyle(editorState);
-    const currentInlineStyles = editorState.getCurrentInlineStyle();
-    if (!currentInlineStyles.has(style)) {
-      return addStyle(editorStateWithoutColorStyles, style);
-    }
+const addStyle = prefix => (editorState, style) => {
+  const newContentState = Modifier.applyInlineStyle(
+    editorState.getCurrentContent(),
+    editorState.getSelection(),
+    prefix + style
+  );
+  return EditorState.push(editorState, newContentState, 'change-inline-style');
+};
 
-    return EditorState.forceSelection(editorStateWithoutColorStyles, editorState.getSelection());
-  };
+const removeStyle = prefix => editorState => {
+  console.log('triggered');
+  return mapSelectedCharacters(filterDynamicStyle(prefix))(editorState);
+};
 
-  const styleFn = currentStyles => {
-    if (!currentStyles.size) {
-      return {};
-    }
-    const value = currentStyles.filter(val => val.startsWith(prefix)).first();
-    if (value) {
-      const newVal = value.replace(prefix, '');
-      return { [camelCase(cssProp)]: newVal };
-    }
+const toggleStyle = prefix => (editorState, value) => {
+  const style = prefix + value;
+  const editorStateWithoutColorStyles = removeStyle(prefix)(editorState);
+  const currentInlineStyles = editorState.getCurrentInlineStyle();
+  if (!currentInlineStyles.has(style)) {
+    return addStyle(prefix)(editorStateWithoutColorStyles, value);
+  }
+
+  return EditorState.forceSelection(editorStateWithoutColorStyles, editorState.getSelection());
+};
+
+const styleFn = (prefix, cssProp) => currentStyles => {
+  if (!currentStyles.size) {
     return {};
-  };
-  const currentStyle = editorState => {
-    const selectionStyles = editorState.getCurrentInlineStyle();
-    if (!selectionStyles.size) {
-      return '';
-    }
+  }
+  const value = currentStyles.filter(val => val.startsWith(prefix)).first();
+  if (value) {
+    const newVal = value.replace(prefix, '');
+    return { [camelCase(cssProp)]: newVal };
+  }
+  return {};
+};
 
-    const result = selectionStyles.filter(style => style.startsWith(prefix)).first();
+const currentStyle = prefix => editorState => {
+  const selectionStyles = editorState.getCurrentInlineStyle();
+  if (!selectionStyles.size) {
+    return '';
+  }
 
-    return result ? result.replace(prefix, '') : result;
-  };
+  const result = selectionStyles.filter(style => style.startsWith(prefix)).first();
 
-  return {
-    toggleStyle,
-    currentStyle,
-    styleFn,
-  };
+  return result ? result.replace(prefix, '') : result;
 };
 
 export const createCustomStyles = (prefix, conf) => {
   return conf.reduce((acc, prop) => {
     const camelCased = camelCase(prop);
-    const snakeCased = `${prefix}${snakeCase(prop).toUpperCase()}_`;
+    const newPrefix = `${prefix}${snakeCase(prop).toUpperCase()}_`;
     const copy = { ...acc };
-    const style = makeDynamicStyles(snakeCased, prop);
     copy[camelCased] = {
-      toggle: style.toggleStyle,
-      current: style.currentStyle,
-      styleFn: style.styleFn,
+      add: addStyle(newPrefix),
+      remove: removeStyle(newPrefix),
+      toggle: toggleStyle(newPrefix),
+      current: currentStyle(newPrefix),
+      styleFn: styleFn(newPrefix, prop),
     };
 
     return copy;
@@ -133,14 +130,14 @@ export const createCustomStyles = (prefix, conf) => {
 };
 
 // customStyleFns
-const customStyleFns = fnList => prefixedStyle => {
+export const customStyleFns = fnList => prefixedStyle => {
   return fnList.reduce((css, fn) => {
     return { ...css, ...fn(prefixedStyle) };
   }, {});
 };
 
 // exporter
-const getInlineStyles = (acc, block) => {
+export const getInlineStyles = (acc, block) => {
   const styleRanges = block.inlineStyleRanges;
   if (styleRanges && styleRanges.length) {
     const result = styleRanges.map(style => style.style);
@@ -150,7 +147,7 @@ const getInlineStyles = (acc, block) => {
   return acc;
 };
 
-const createInlineStyleExportObject = prefix => (acc, style) => {
+export const createInlineStyleExportObject = prefix => (acc, style) => {
   const regex = new RegExp(`${prefix}(.+)_(.+)`);
   const match = style.match(regex);
   const css = match[1].toLowerCase();
@@ -166,7 +163,7 @@ const createInlineStyleExportObject = prefix => (acc, style) => {
   return Object.assign({}, acc, inlineStyle);
 };
 
-const inlineStyleExporter = prefix => editorState => {
+export const inlineStyleExporter = prefix => editorState => {
   const inlineStyles =
     convertToRaw(editorState.getCurrentContent()).blocks.reduce(getInlineStyles, []);
   if (!inlineStyles.length) return {};
@@ -176,8 +173,8 @@ const inlineStyleExporter = prefix => editorState => {
 export default (conf, prefix = 'CUSTOM_') => {
   const styles = createCustomStyles(prefix, conf);
   const fnList = Object.keys(styles).map(style => styles[style].styleFn);
-  const customStyleFn = customStyleFns(fnList); // (prefixed Style goes here) this is curried;
-  const exporter = inlineStyleExporter(prefix); // curried accepts EditorState
+  const customStyleFn = customStyleFns(fnList);
+  const exporter = inlineStyleExporter(prefix);
 
   return {
     styles,
