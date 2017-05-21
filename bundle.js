@@ -22541,7 +22541,15 @@
 	            },
 	            'Add FontSize'
 	          ),
-	          'r',
+	          _react2.default.createElement(
+	            'button',
+	            {
+	              onClick: function onClick() {
+	                return _this2.toggleFontSize('70px');
+	              }
+	            },
+	            'toggle FontSize'
+	          ),
 	          _react2.default.createElement(
 	            'select',
 	            { onChange: function onChange(e) {
@@ -61638,6 +61646,12 @@
 	  };
 	};
 
+	var removeAndAdd = function removeAndAdd(prefix) {
+	  return function (editorState, style) {
+	    return addStyle(prefix)(removeStyle(prefix)(editorState), style);
+	  };
+	};
+
 	var toggleStyle = function toggleStyle(prefix) {
 	  return function (editorState, value) {
 	    var style = prefix + value;
@@ -61691,7 +61705,7 @@
 	    var newPrefix = '' + prefix + (0, _lodash4.default)(prop).toUpperCase() + '_';
 	    var copy = _extends({}, acc);
 	    copy[camelCased] = {
-	      add: addStyle(newPrefix),
+	      add: removeAndAdd(newPrefix),
 	      remove: removeStyle(newPrefix),
 	      toggle: toggleStyle(newPrefix),
 	      current: currentStyle(newPrefix),
