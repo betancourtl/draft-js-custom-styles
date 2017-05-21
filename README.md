@@ -36,7 +36,7 @@ npm i --save draft-js-custom-styles
  const removeColor = styles.color.remove;
  const currentColor = styles.color.current;
 
- // sfontSize
+ // fontSize
  const toggleFontSize = styles.fontSize.toggle;
  const addFontSize = styles.fontSize.add;
  const removeFontSize = styles.fontSize.remove;
@@ -78,7 +78,7 @@ npm i --save draft-js-custom-styles
  import { Editor, convertToRaw } from 'draft-js';
  import { stateToHTML } from 'draft-js-export-html';
  import Raw from 'draft-js-raw-content-state';
- import createStyles from 'draft-js-raw-custom-styles';
+ import createStyles from 'draft-js-custom-styles';
  
  const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'text-transform']);
  
