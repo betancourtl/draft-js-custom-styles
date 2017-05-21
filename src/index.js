@@ -77,6 +77,10 @@ const removeStyle = prefix => editorState => {
   return mapSelectedCharacters(filterDynamicStyle(prefix))(editorState);
 };
 
+const removeAndAdd = prefix => (editorState, style) => {
+  return addStyle(prefix)(removeStyle(prefix)(editorState), style);
+};
+
 const toggleStyle = prefix => (editorState, value) => {
   const style = prefix + value;
   const editorStateWithoutColorStyles = removeStyle(prefix)(editorState);
@@ -120,7 +124,7 @@ export const createCustomStyles = (prefix, conf) => {
     const newPrefix = `${prefix}${snakeCase(prop).toUpperCase()}_`;
     const copy = { ...acc };
     copy[camelCased] = {
-      add: addStyle(newPrefix),
+      add: removeAndAdd(newPrefix),
       remove: removeStyle(newPrefix),
       toggle: toggleStyle(newPrefix),
       current: currentStyle(newPrefix),

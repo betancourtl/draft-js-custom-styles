@@ -39,6 +39,7 @@ class RichEditor extends React.Component {
 
     return this.updateEditorState(newEditorState);
   };
+
   toggleTextTransform = color => {
     const newEditorState = styles.textTransform.toggle(this.state.editorState, color);
 
@@ -65,7 +66,11 @@ class RichEditor extends React.Component {
           >
             Add FontSize
           </button>
-          r
+          <button
+            onClick={() => this.toggleFontSize('70px')}
+          >
+            toggle FontSize
+          </button>
           <select onChange={e => this.toggleFontSize(e.target.value)}>
             {options(['12px', '24px', '36px', '50px', '72px'])}
           </select>
