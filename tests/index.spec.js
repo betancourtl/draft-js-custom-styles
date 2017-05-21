@@ -53,6 +53,22 @@ describe('add()', () => {
         offset: 0,
       }]);
   });
+  it('should add a remove the old inline styles and apply the new one', () => {
+    const editorState = new Raw()
+      .addBlock('block 1')
+      .anchorKey(0)
+      .focusKey(5)
+      .toEditorState();
+    const newEditorState = styles.color.add(editorState, 'red');
+    const newEditorState2 = styles.color.add(newEditorState, 'green');
+    const inlineStyleRanges = blockInlineStyleRanges(newEditorState2, 0);
+    expect(inlineStyleRanges).to.deep.equal([
+      {
+        style: 'CUSTOM_COLOR_green',
+        length: 5,
+        offset: 0,
+      }]);
+  });
 });
 
 describe('remove()', () => {

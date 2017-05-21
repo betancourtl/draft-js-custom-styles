@@ -103,6 +103,12 @@ var removeStyle = function removeStyle(prefix) {
   };
 };
 
+var removeAndAdd = function removeAndAdd(prefix) {
+  return function (editorState, style) {
+    return addStyle(prefix)(removeStyle(prefix)(editorState), style);
+  };
+};
+
 var toggleStyle = function toggleStyle(prefix) {
   return function (editorState, value) {
     var style = prefix + value;
@@ -156,7 +162,7 @@ var createCustomStyles = exports.createCustomStyles = function createCustomStyle
     var newPrefix = '' + prefix + (0, _lodash4.default)(prop).toUpperCase() + '_';
     var copy = _extends({}, acc);
     copy[camelCased] = {
-      add: addStyle(newPrefix),
+      add: removeAndAdd(newPrefix),
       remove: removeStyle(newPrefix),
       toggle: toggleStyle(newPrefix),
       current: currentStyle(newPrefix),
