@@ -68,7 +68,7 @@ class RichEditor extends React.Component {
             ITALIC
           </button>
           <button onClick={() => this.updateEditorState(
-            RichUtils.toggleInlineStyle(this.state.editorState, 'MARK'))}>
+            RichUtils.toggleInlineStyle(this.state.editorState, 'ITALIC'))}>
             CustomStyleMap Styles
           </button>
           <button

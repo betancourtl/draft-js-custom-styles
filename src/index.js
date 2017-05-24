@@ -216,6 +216,16 @@ export const validatePrefix = prefix => {
 };
 
 export default (conf, prefix = DEFAULT_PREFIX, customStyleMap = {}) => {
+  if (!conf) {
+    console.log('Expecting an array with css properties');
+    return { styles: {} };
+  }
+
+  if (!Array.isArray(conf) || !conf.length) {
+    console.log('createStyles expects first parameter to be an array with css properties');
+    return { styles: {} };
+  }
+
   const checkedPrefix = (validatePrefix(prefix));
   const styles = createCustomStyles(checkedPrefix, conf);
   const fnList = Object.keys(styles).map(style => styles[style].styleFn);

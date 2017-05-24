@@ -1,7 +1,13 @@
 [![Build Status](https://travis-ci.org/webdeveloperpr/draft-js-custom-styles.svg?branch=master)](https://travis-ci.org/webdeveloperpr/draft-js-custom-styles)
 # draft-js-custom-styles
 
-This package allows you to completely remove the customStyleMap functionality with a more dynamic one, using customStyleFn.
+This package allows you to use custom inline styles and also export them so they can be
+rendered to using `draft-js-export-html` package
+
+It will export:
+ - default inline styles (BOLD, ITALIC, UNDERLINE, etc)
+ - customStyleMap (Your customStyleMap styles that you will pass to the editor)
+ - customStyles (Your custom styles)
  
 ## Table of Contents
 
@@ -20,13 +26,13 @@ npm i --save draft-js-custom-styles
 
 ## Usage
 
- Pass an array of css properties to createStyles function. 
- 
+ Pass an array of css properties to the createStyles function. 
+ prefix and the customStyleMaps are optional
  ```javascript
  import createStyles from 'draft-js-custom-styles';
- const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color']);
+ const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color'], 'PREFIX', customStyleMap);
  ```
- You will have access to new functions
+ You will have access to new functions to add, remove, toggle the new styles.
  
  ```javascript
  
@@ -46,7 +52,7 @@ npm i --save draft-js-custom-styles
 ## API
 
 ```javascript
- const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'text-transform']);
+ const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'text-transform'], 'PREFIX_', customStyleMap);
 ```
 **styles**
 
@@ -64,7 +70,8 @@ npm i --save draft-js-custom-styles
 
  **How to use the exporter?**
  
- If you are using `draft-js-export-html`. you can pass the custom styles using the export function 
+ If you are using `draft-js-export-html`. you can export the inline styles with by passing
+ the exporter your editorState.
 
 ```javascript
      const inlineStyles = exporter(this.state.editorState);
@@ -80,7 +87,15 @@ npm i --save draft-js-custom-styles
  import Raw from 'draft-js-raw-content-state';
  import createStyles from 'draft-js-custom-styles';
  
- const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'text-transform']);
+const customStyleMap = {
+  MARK: {
+    backgroundColor: 'Yellow',
+    fontStyle: 'italic',
+  },
+};
+ 
+// Passing the customStyleMap is optional
+ const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'text-transform'], 'CUSTOM_', customStyleMap);
  
  class RichEditor extends React.Component {
    constructor(props) {
@@ -115,6 +130,7 @@ npm i --save draft-js-custom-styles
  
      return this.updateEditorState(newEditorState);
    };
+   
    toggleTextTransform = color => {
      const newEditorState = styles.textTransform.toggle(this.state.editorState, color);
  
@@ -156,6 +172,7 @@ npm i --save draft-js-custom-styles
            <h2>Draft-JS Editor</h2>
            <Editor
              customStyleFn={customStyleFn}
+             customStyleMap={customStyleMap}
              editorState={editorState}
              onChange={this.updateEditorState}
              onTab={this.onTab}

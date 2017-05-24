@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import Raw from 'draft-js-raw-content-state';
 import { convertToRaw, RichUtils } from 'draft-js';
 import { OrderedSet } from 'immutable';
-import dynamicStyles, { validatePrefix } from '../src';
+import createStyles, { validatePrefix } from '../src';
 
 const blockInlineStyleRanges = (editorState, i = 0) => {
   return convertToRaw(editorState.getCurrentContent()).blocks[i].inlineStyleRanges;
@@ -10,7 +10,7 @@ const blockInlineStyleRanges = (editorState, i = 0) => {
 
 describe('createStyles', () => {
   const config = ['color'];
-  const { styles, customStyleFn, exporter } = dynamicStyles(config);
+  const { styles, customStyleFn, exporter } = createStyles(config);
 
   it('returns a toggle function', () => {
     expect(styles.color.toggle).to.exist;
@@ -33,11 +33,15 @@ describe('createStyles', () => {
   it('should have a function named exporter', () => {
     expect(exporter).to.exist;
   });
+  it('should return an empty object if no styles are passed', () => {
+    const { styles } = createStyles();
+    expect(styles).to.deep.equal({});
+  });
 });
 
 describe('add()', () => {
   const config = ['color'];
-  const { styles } = dynamicStyles(config);
+  const { styles } = createStyles(config);
   it('should add a custom inline style', () => {
     const editorState = new Raw()
       .addBlock('block 1')
@@ -74,7 +78,7 @@ describe('add()', () => {
 describe('remove()', () => {
   it('should remove a custom inline style', () => {
     const config = ['color'];
-    const { styles } = dynamicStyles(config);
+    const { styles } = createStyles(config);
     it('should add a custom inline style', () => {
       const editorState = new Raw()
         .addBlock('block 1')
@@ -91,7 +95,7 @@ describe('remove()', () => {
 
 describe('toggle()', () => {
   const config = ['color'];
-  const { styles } = dynamicStyles(config);
+  const { styles } = createStyles(config);
   it('should add a custom inline style', () => {
     const editorState = new Raw()
       .addBlock('block 1')
@@ -117,7 +121,7 @@ describe('toggle()', () => {
 
 describe('customStyleFn()', () => {
   const config = ['color'];
-  const { customStyleFn } = dynamicStyles(config);
+  const { customStyleFn } = createStyles(config);
   it('should create a css object from a string', () => {
     const result = customStyleFn(OrderedSet(['CUSTOM_COLOR_red']));
     expect(result).to.deep.equal({ color: 'red' });
@@ -126,7 +130,7 @@ describe('customStyleFn()', () => {
 
 describe('current()', () => {
   const config = ['color'];
-  const { styles } = dynamicStyles(config);
+  const { styles } = createStyles(config);
   it('should add a custom inline style', () => {
     const editorState = new Raw()
       .addBlock('block 1')
@@ -146,7 +150,7 @@ describe('exporter()', () => {
       fontStyle: 'italic',
     },
   };
-  const { styles, exporter } = dynamicStyles(config, 'CUSTOM_', customStyleMap);
+  const { styles, exporter } = createStyles(config, 'CUSTOM_', customStyleMap);
   it('should export the custom inline styles', () => {
     const editorState = new Raw()
       .addBlock('block 1')
