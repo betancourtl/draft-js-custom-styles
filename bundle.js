@@ -22448,7 +22448,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var _createStyles = (0, _src2.default)(['font-size', 'color', 'text-transform']),
+	var _createStyles = (0, _src2.default)(['color', 'font-size', 'text-transform'], 'CUSTOM_'),
 	    styles = _createStyles.styles,
 	    customStyleFn = _createStyles.customStyleFn,
 	    exporter = _createStyles.exporter;
@@ -22527,6 +22527,13 @@
 	        _react2.default.createElement(
 	          'div',
 	          { style: { flex: '1 0 25%' } },
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: function onClick() {
+	                return _this2.updateEditorState(_draftJs.RichUtils.toggleInlineStyle(_this2.state.editorState, 'ITALIC'));
+	              } },
+	            'ITALIC'
+	          ),
 	          _react2.default.createElement(
 	            'button',
 	            {
@@ -61740,8 +61747,22 @@
 
 	var createInlineStyleExportObject = exports.createInlineStyleExportObject = function createInlineStyleExportObject(prefix) {
 	  return function (acc, style) {
+	    // default inline styles
+
+	    if (_draftJs.DefaultDraftInlineStyle[style]) {
+	      var _inlineStyle = _defineProperty({}, style, _draftJs.DefaultDraftInlineStyle[style]);
+	      return Object.assign({}, acc, _inlineStyle);
+	    }
+
 	    var regex = new RegExp(prefix + '(.+)_(.+)');
 	    var match = style.match(regex);
+
+	    // no matches
+	    if (!match || !match[1] || !match[2]) {
+	      return acc;
+	    }
+
+	    // custom styles
 	    var css = match[1].toLowerCase();
 	    var value = match[2].toLowerCase();
 	    var inlineStyle = _defineProperty({}, style, {
