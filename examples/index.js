@@ -4,7 +4,14 @@ import { stateToHTML } from 'draft-js-export-html';
 import Raw from 'draft-js-raw-content-state';
 import createStyles from '../src';
 
-const { styles, customStyleFn, exporter } = createStyles(['color', 'font-size', 'text-transform'], 'CUSTOM_');
+const customStyleMap = {
+  MARK: {
+    backgroundColor: 'Yellow',
+    fontStyle: 'italic',
+  },
+};
+
+const { styles, customStyleFn, exporter } = createStyles(['color', 'font-size', 'text-transform'], 'CUSTOM_', customStyleMap);
 
 class RichEditor extends React.Component {
   constructor(props) {
@@ -60,6 +67,10 @@ class RichEditor extends React.Component {
             RichUtils.toggleInlineStyle(this.state.editorState, 'ITALIC'))}>
             ITALIC
           </button>
+          <button onClick={() => this.updateEditorState(
+            RichUtils.toggleInlineStyle(this.state.editorState, 'MARK'))}>
+            CustomStyleMap Styles
+          </button>
           <button
             onClick={this.removeFontSize}
           >
@@ -89,6 +100,7 @@ class RichEditor extends React.Component {
           <h2>Draft-JS Editor</h2>
           <Editor
             customStyleFn={customStyleFn}
+            customStyleMap={customStyleMap}
             editorState={editorState}
             onChange={this.updateEditorState}
             onTab={this.onTab}

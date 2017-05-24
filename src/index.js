@@ -3,6 +3,8 @@ import { Map } from 'immutable';
 import camelCase from 'lodash.camelcase';
 import snakeCase from 'lodash.snakecase';
 
+const DEFAULT_PREFIX = 'CUSTOM_';
+
 // This functionality has been taken from draft-js and modified for re-usability purposes.
 // Maps over the selected characters, and applies a function to each character.
 // Characters are of type CharacterMetadata.
@@ -153,12 +155,23 @@ export const getInlineStyles = (acc, block) => {
   return acc;
 };
 
-export const createInlineStyleExportObject = prefix => (acc, style) => {
+export const createInlineStyleExportObject = (prefix, customStyleMap) => (acc, style) => {
   // default inline styles
-
   if (DefaultDraftInlineStyle[style]) {
-    const inlineStyle = { [style]: DefaultDraftInlineStyle[style] };
-    return Object.assign({}, acc, inlineStyle);
+    return Object.assign({}, acc, {
+      [style]: {
+        style: DefaultDraftInlineStyle[style],
+      },
+    });
+  }
+
+  // custom styleMap styles
+  if (customStyleMap[style]) {
+    return Object.assign({}, acc, {
+      [style]: {
+        style: customStyleMap[style],
+      },
+    });
   }
 
   const regex = new RegExp(`${prefix}(.+)_(.+)`);
@@ -183,18 +196,31 @@ export const createInlineStyleExportObject = prefix => (acc, style) => {
   return Object.assign({}, acc, inlineStyle);
 };
 
-export const inlineStyleExporter = prefix => editorState => {
+export const inlineStyleExporter = (prefix, customStyleMap) => editorState => {
   const inlineStyles =
     convertToRaw(editorState.getCurrentContent()).blocks.reduce(getInlineStyles, []);
   if (!inlineStyles.length) return {};
-  return inlineStyles.reduce(createInlineStyleExportObject(prefix), {});
+  return inlineStyles.reduce(createInlineStyleExportObject(prefix, customStyleMap), {});
 };
 
-export default (conf, prefix = 'CUSTOM_') => {
-  const styles = createCustomStyles(prefix, conf);
+export const validatePrefix = prefix => {
+  if (typeof prefix !== 'string' || !prefix.length) {
+    return DEFAULT_PREFIX;
+  }
+
+  if (prefix.match(/.+_$/)) {
+    return prefix;
+  }
+
+  return `${prefix}_`;
+};
+
+export default (conf, prefix = DEFAULT_PREFIX, customStyleMap = {}) => {
+  const checkedPrefix = (validatePrefix(prefix));
+  const styles = createCustomStyles(checkedPrefix, conf);
   const fnList = Object.keys(styles).map(style => styles[style].styleFn);
   const customStyleFn = customStyleFns(fnList);
-  const exporter = inlineStyleExporter(prefix);
+  const exporter = inlineStyleExporter(checkedPrefix, customStyleMap);
 
   return {
     styles,
