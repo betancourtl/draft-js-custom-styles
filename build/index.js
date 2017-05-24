@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.inlineStyleExporter = exports.createInlineStyleExportObject = exports.getInlineStyles = exports.customStyleFns = exports.createCustomStyles = exports.mapSelectedCharacters = undefined;
+exports.validatePrefix = exports.inlineStyleExporter = exports.createInlineStyleExportObject = exports.getInlineStyles = exports.customStyleFns = exports.createCustomStyles = exports.mapSelectedCharacters = undefined;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -22,6 +22,8 @@ var _lodash4 = _interopRequireDefault(_lodash3);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var DEFAULT_PREFIX = 'CUSTOM_';
 
 // This functionality has been taken from draft-js and modified for re-usability purposes.
 // Maps over the selected characters, and applies a function to each character.
@@ -195,13 +197,20 @@ var getInlineStyles = exports.getInlineStyles = function getInlineStyles(acc, bl
   return acc;
 };
 
-var createInlineStyleExportObject = exports.createInlineStyleExportObject = function createInlineStyleExportObject(prefix) {
+var createInlineStyleExportObject = exports.createInlineStyleExportObject = function createInlineStyleExportObject(prefix, customStyleMap) {
   return function (acc, style) {
     // default inline styles
-
     if (_draftJs.DefaultDraftInlineStyle[style]) {
-      var _inlineStyle = _defineProperty({}, style, _draftJs.DefaultDraftInlineStyle[style]);
-      return Object.assign({}, acc, _inlineStyle);
+      return Object.assign({}, acc, _defineProperty({}, style, {
+        style: _draftJs.DefaultDraftInlineStyle[style]
+      }));
+    }
+
+    // custom styleMap styles
+    if (customStyleMap[style]) {
+      return Object.assign({}, acc, _defineProperty({}, style, {
+        style: customStyleMap[style]
+      }));
     }
 
     var regex = new RegExp(prefix + '(.+)_(.+)');
@@ -223,23 +232,47 @@ var createInlineStyleExportObject = exports.createInlineStyleExportObject = func
   };
 };
 
-var inlineStyleExporter = exports.inlineStyleExporter = function inlineStyleExporter(prefix) {
+var inlineStyleExporter = exports.inlineStyleExporter = function inlineStyleExporter(prefix, customStyleMap) {
   return function (editorState) {
     var inlineStyles = (0, _draftJs.convertToRaw)(editorState.getCurrentContent()).blocks.reduce(getInlineStyles, []);
     if (!inlineStyles.length) return {};
-    return inlineStyles.reduce(createInlineStyleExportObject(prefix), {});
+    return inlineStyles.reduce(createInlineStyleExportObject(prefix, customStyleMap), {});
   };
 };
 
-exports.default = function (conf) {
-  var prefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'CUSTOM_';
+var validatePrefix = exports.validatePrefix = function validatePrefix(prefix) {
+  if (typeof prefix !== 'string' || !prefix.length) {
+    return DEFAULT_PREFIX;
+  }
 
-  var styles = createCustomStyles(prefix, conf);
+  if (prefix.match(/.+_$/)) {
+    return prefix;
+  }
+
+  return prefix + '_';
+};
+
+exports.default = function (conf) {
+  var prefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT_PREFIX;
+  var customStyleMap = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+  if (!conf) {
+    console.log('Expecting an array with css properties');
+    return { styles: {} };
+  }
+
+  if (!Array.isArray(conf) || !conf.length) {
+    console.log('createStyles expects first parameter to be an array with css properties');
+    return { styles: {} };
+  }
+
+  var checkedPrefix = validatePrefix(prefix);
+  var styles = createCustomStyles(checkedPrefix, conf);
   var fnList = Object.keys(styles).map(function (style) {
     return styles[style].styleFn;
   });
   var customStyleFn = customStyleFns(fnList);
-  var exporter = inlineStyleExporter(prefix);
+  var exporter = inlineStyleExporter(checkedPrefix, customStyleMap);
 
   return {
     styles: styles,
