@@ -22448,7 +22448,14 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var _createStyles = (0, _src2.default)(['color', 'font-size', 'text-transform'], 'CUSTOM_'),
+	var customStyleMap = {
+	  MARK: {
+	    backgroundColor: 'Yellow',
+	    fontStyle: 'italic'
+	  }
+	};
+
+	var _createStyles = (0, _src2.default)(['color', 'font-size', 'text-transform'], 'CUSTOM_', customStyleMap),
 	    styles = _createStyles.styles,
 	    customStyleFn = _createStyles.customStyleFn,
 	    exporter = _createStyles.exporter;
@@ -22536,6 +22543,13 @@
 	          ),
 	          _react2.default.createElement(
 	            'button',
+	            { onClick: function onClick() {
+	                return _this2.updateEditorState(_draftJs.RichUtils.toggleInlineStyle(_this2.state.editorState, 'ITALIC'));
+	              } },
+	            'CustomStyleMap Styles'
+	          ),
+	          _react2.default.createElement(
+	            'button',
 	            {
 	              onClick: this.removeFontSize
 	            },
@@ -22589,6 +22603,7 @@
 	          ),
 	          _react2.default.createElement(_draftJs.Editor, {
 	            customStyleFn: customStyleFn,
+	            customStyleMap: customStyleMap,
 	            editorState: editorState,
 	            onChange: this.updateEditorState,
 	            onTab: this.onTab,
@@ -61553,7 +61568,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.inlineStyleExporter = exports.createInlineStyleExportObject = exports.getInlineStyles = exports.customStyleFns = exports.createCustomStyles = exports.mapSelectedCharacters = undefined;
+	exports.validatePrefix = exports.inlineStyleExporter = exports.createInlineStyleExportObject = exports.getInlineStyles = exports.customStyleFns = exports.createCustomStyles = exports.mapSelectedCharacters = undefined;
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -61572,6 +61587,8 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+	var DEFAULT_PREFIX = 'CUSTOM_';
 
 	// This functionality has been taken from draft-js and modified for re-usability purposes.
 	// Maps over the selected characters, and applies a function to each character.
@@ -61745,13 +61762,20 @@
 	  return acc;
 	};
 
-	var createInlineStyleExportObject = exports.createInlineStyleExportObject = function createInlineStyleExportObject(prefix) {
+	var createInlineStyleExportObject = exports.createInlineStyleExportObject = function createInlineStyleExportObject(prefix, customStyleMap) {
 	  return function (acc, style) {
 	    // default inline styles
-
 	    if (_draftJs.DefaultDraftInlineStyle[style]) {
-	      var _inlineStyle = _defineProperty({}, style, _draftJs.DefaultDraftInlineStyle[style]);
-	      return Object.assign({}, acc, _inlineStyle);
+	      return Object.assign({}, acc, _defineProperty({}, style, {
+	        style: _draftJs.DefaultDraftInlineStyle[style]
+	      }));
+	    }
+
+	    // custom styleMap styles
+	    if (customStyleMap[style]) {
+	      return Object.assign({}, acc, _defineProperty({}, style, {
+	        style: customStyleMap[style]
+	      }));
 	    }
 
 	    var regex = new RegExp(prefix + '(.+)_(.+)');
@@ -61773,23 +61797,47 @@
 	  };
 	};
 
-	var inlineStyleExporter = exports.inlineStyleExporter = function inlineStyleExporter(prefix) {
+	var inlineStyleExporter = exports.inlineStyleExporter = function inlineStyleExporter(prefix, customStyleMap) {
 	  return function (editorState) {
 	    var inlineStyles = (0, _draftJs.convertToRaw)(editorState.getCurrentContent()).blocks.reduce(getInlineStyles, []);
 	    if (!inlineStyles.length) return {};
-	    return inlineStyles.reduce(createInlineStyleExportObject(prefix), {});
+	    return inlineStyles.reduce(createInlineStyleExportObject(prefix, customStyleMap), {});
 	  };
 	};
 
-	exports.default = function (conf) {
-	  var prefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'CUSTOM_';
+	var validatePrefix = exports.validatePrefix = function validatePrefix(prefix) {
+	  if (typeof prefix !== 'string' || !prefix.length) {
+	    return DEFAULT_PREFIX;
+	  }
 
-	  var styles = createCustomStyles(prefix, conf);
+	  if (prefix.match(/.+_$/)) {
+	    return prefix;
+	  }
+
+	  return prefix + '_';
+	};
+
+	exports.default = function (conf) {
+	  var prefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT_PREFIX;
+	  var customStyleMap = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+	  if (!conf) {
+	    console.log('Expecting an array with css properties');
+	    return { styles: {} };
+	  }
+
+	  if (!Array.isArray(conf) || !conf.length) {
+	    console.log('createStyles expects first parameter to be an array with css properties');
+	    return { styles: {} };
+	  }
+
+	  var checkedPrefix = validatePrefix(prefix);
+	  var styles = createCustomStyles(checkedPrefix, conf);
 	  var fnList = Object.keys(styles).map(function (style) {
 	    return styles[style].styleFn;
 	  });
 	  var customStyleFn = customStyleFns(fnList);
-	  var exporter = inlineStyleExporter(prefix);
+	  var exporter = inlineStyleExporter(checkedPrefix, customStyleMap);
 
 	  return {
 	    styles: styles,
