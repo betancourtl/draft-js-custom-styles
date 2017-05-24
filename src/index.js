@@ -1,4 +1,4 @@
-import { EditorState, Modifier, convertToRaw } from 'draft-js';
+import { EditorState, Modifier, convertToRaw, DefaultDraftInlineStyle } from 'draft-js';
 import { Map } from 'immutable';
 import camelCase from 'lodash.camelcase';
 import snakeCase from 'lodash.snakecase';
@@ -154,8 +154,22 @@ export const getInlineStyles = (acc, block) => {
 };
 
 export const createInlineStyleExportObject = prefix => (acc, style) => {
+  // default inline styles
+
+  if (DefaultDraftInlineStyle[style]) {
+    const inlineStyle = { [style]: DefaultDraftInlineStyle[style] };
+    return Object.assign({}, acc, inlineStyle);
+  }
+
   const regex = new RegExp(`${prefix}(.+)_(.+)`);
   const match = style.match(regex);
+
+  // no matches
+  if (!match || !match[1] || !match[2]) {
+    return acc;
+  }
+
+  // custom styles
   const css = match[1].toLowerCase();
   const value = match[2].toLowerCase();
   const inlineStyle = {

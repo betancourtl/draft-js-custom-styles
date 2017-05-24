@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import Raw from 'draft-js-raw-content-state';
-import { convertToRaw } from 'draft-js';
+import { convertToRaw, RichUtils } from 'draft-js';
 import { OrderedSet } from 'immutable';
 import dynamicStyles from '../src';
 
@@ -141,7 +141,7 @@ describe('current()', () => {
 describe('exporter()', () => {
   const config = ['color', 'background-color'];
   const { styles, exporter } = dynamicStyles(config);
-  it('should export the inline styles', () => {
+  it('should export the custom inline styles', () => {
     const editorState = new Raw()
       .addBlock('block 1')
       .anchorKey(0)
@@ -155,6 +155,32 @@ describe('exporter()', () => {
         style: {
           color: 'red',
         },
+      },
+      CUSTOM_BACKGROUND_COLOR_green: {
+        style: {
+          backgroundColor: 'green',
+        },
+      },
+    });
+  });
+  it('should export the custom inline styles and ignore non-custom styles', () => {
+    const editorState = new Raw()
+      .addBlock('block 1')
+      .anchorKey(0)
+      .focusKey(5)
+      .toEditorState();
+    const newEditorState1 = RichUtils.toggleInlineStyle(editorState, 'BOLD');
+    const newEditorState2 = styles.color.add(newEditorState1, 'red');
+    const newEditorState3 = styles.backgroundColor.add(newEditorState2, 'green');
+    const inlineStyles = exporter(newEditorState3);
+    expect(inlineStyles).to.deep.equal({
+      CUSTOM_COLOR_red: {
+        style: {
+          color: 'red',
+        },
+      },
+      BOLD: {
+        fontWeight: 'bold',
       },
       CUSTOM_BACKGROUND_COLOR_green: {
         style: {

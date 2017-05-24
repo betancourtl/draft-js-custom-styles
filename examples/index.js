@@ -1,10 +1,10 @@
 import React from 'react';
-import { Editor, convertToRaw } from 'draft-js';
+import { Editor, convertToRaw, RichUtils } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import Raw from 'draft-js-raw-content-state';
 import createStyles from '../src';
 
-const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'text-transform']);
+const { styles, customStyleFn, exporter } = createStyles(['color', 'font-size', 'text-transform'], 'CUSTOM_');
 
 class RichEditor extends React.Component {
   constructor(props) {
@@ -56,6 +56,10 @@ class RichEditor extends React.Component {
     return (
       <div style={{ display: 'flex', padding: '15px' }}>
         <div style={{ flex: '1 0 25%' }}>
+          <button onClick={() => this.updateEditorState(
+            RichUtils.toggleInlineStyle(this.state.editorState, 'ITALIC'))}>
+            ITALIC
+          </button>
           <button
             onClick={this.removeFontSize}
           >
