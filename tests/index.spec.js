@@ -189,5 +189,32 @@ describe('exporter()', () => {
       },
     });
   });
+  it('should not export non-custom or default styles', () => {
+    const editorState = new Raw()
+      .addBlock('block 1')
+      .anchorKey(0)
+      .focusKey(5)
+      .toEditorState();
+    const newEditorState1 = RichUtils.toggleInlineStyle(editorState, 'BOLD');
+    const newEditorState2 = RichUtils.toggleInlineStyle(newEditorState1, 'NON_CUSTOM');
+    const newEditorState3 = styles.color.add(newEditorState2, 'red');
+    const newEditorState4 = styles.backgroundColor.add(newEditorState3, 'green');
+    const inlineStyles = exporter(newEditorState4);
+    expect(inlineStyles).to.deep.equal({
+      CUSTOM_COLOR_red: {
+        style: {
+          color: 'red',
+        },
+      },
+      BOLD: {
+        fontWeight: 'bold',
+      },
+      CUSTOM_BACKGROUND_COLOR_green: {
+        style: {
+          backgroundColor: 'green',
+        },
+      },
+    });
+  });
 });
 
