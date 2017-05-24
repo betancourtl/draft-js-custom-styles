@@ -197,8 +197,22 @@ var getInlineStyles = exports.getInlineStyles = function getInlineStyles(acc, bl
 
 var createInlineStyleExportObject = exports.createInlineStyleExportObject = function createInlineStyleExportObject(prefix) {
   return function (acc, style) {
+    // default inline styles
+
+    if (_draftJs.DefaultDraftInlineStyle[style]) {
+      var _inlineStyle = _defineProperty({}, style, _draftJs.DefaultDraftInlineStyle[style]);
+      return Object.assign({}, acc, _inlineStyle);
+    }
+
     var regex = new RegExp(prefix + '(.+)_(.+)');
     var match = style.match(regex);
+
+    // no matches
+    if (!match || !match[1] || !match[2]) {
+      return acc;
+    }
+
+    // custom styles
     var css = match[1].toLowerCase();
     var value = match[2].toLowerCase();
     var inlineStyle = _defineProperty({}, style, {
