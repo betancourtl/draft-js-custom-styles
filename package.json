@@ -10,13 +10,13 @@
   "scripts": {
     "start": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "test": "mocha --compilers js:babel-core/register --require ./config/test_helper.js --recursive ./tests/*.spec.js",
-    "test:watch": "yarn test -- --watch",
+    "test:watch": "npm run test -- --watch",
     "watch": "watch 'npm run build' src",
     "build": "babel src -d build",
     "webpack-build": "webpack",
-    "deploy": "yarn webpack-build && gh-pages -d docs",
-    "prepare": "yarn build",
-    "release": "np && yarn deploy"
+    "deploy": "npm run webpack-build && gh-pages -d docs",
+    "prepare": "npm run build",
+    "release": "np && npm run deploy"
   },
   "babel": {
     "presets": [
