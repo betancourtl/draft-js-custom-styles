@@ -65,10 +65,10 @@
     "webpack-dev-server": "^1.14.0"
   },
   "dependencies": {
-    "draft-js": "0.10.0",
-    "immutable": "3.8.1",
-    "lodash.camelcase": "4.3.0",
-    "lodash.snakecase": "4.1.1"
+    "draft-js": "^0.10.0",
+    "immutable": "^3.8.1",
+    "lodash.camelcase": "^4.3.0",
+    "lodash.snakecase": "^4.1.1"
   },
   "bugs": {
     "url": "https://github.com/webdeveloperpr/draft-js-custom-styles/issues"
