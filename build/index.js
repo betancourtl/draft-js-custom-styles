@@ -114,9 +114,17 @@ var removeAndAdd = function removeAndAdd(prefix) {
 var toggleStyle = function toggleStyle(prefix) {
   return function (editorState, value) {
     var style = prefix + value;
+    var currentStyle = editorState.getCurrentInlineStyle();
+    var isCollapsed = editorState.getSelection().isCollapsed();
+
+    if (isCollapsed) {
+      var styleOverride = currentStyle.has(style) ? currentStyle.remove(style) : currentStyle.add(style);
+
+      return _draftJs.EditorState.setInlineStyleOverride(editorState, styleOverride);
+    }
+
     var editorStateWithoutColorStyles = removeStyle(prefix)(editorState);
-    var currentInlineStyles = editorState.getCurrentInlineStyle();
-    if (!currentInlineStyles.has(style)) {
+    if (!currentStyle.has(style)) {
       return addStyle(prefix)(editorStateWithoutColorStyles, value);
     }
 
