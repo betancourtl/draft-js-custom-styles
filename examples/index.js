@@ -1,7 +1,7 @@
 import React from 'react';
 import Raw from 'draft-js-raw-content-state';
 import { stateToHTML } from 'draft-js-export-html';
-import { Editor, convertToRaw, RichUtils } from 'draft-js';
+import { Editor, convertToRaw } from 'draft-js';
 import createStyles from '../src';
 
 const customStyleMap = {
@@ -11,7 +11,7 @@ const customStyleMap = {
   },
 };
 
-const { styles, customStyleFn, exporter } = createStyles(['color', 'font-size', 'text-transform'], 'CUSTOM_', customStyleMap);
+const { styles, customStyleFn, exporter } = createStyles(['color', 'font-size'], 'CUSTOM_', customStyleMap);
 
 const Button = props => <button onMouseDown={e => e.preventDefault()} {...props} />;
 
@@ -54,56 +54,44 @@ class RichEditor extends React.Component {
     return this.updateEditorState(newEditorState, this.focusEditor);
   };
 
-  toggleTextTransform = transform => {
-    const newEditorState = styles.textTransform.toggle(this.state.editorState, transform);
-
-    return this.updateEditorState(newEditorState, this.focusEditor);
-  };
-
   render() {
     const { editorState } = this.state;
     const inlineStyles = exporter(this.state.editorState);
     const html = stateToHTML(this.state.editorState.getCurrentContent(), { inlineStyles });
-    const options = x => x.map(fontSize => {
-      return <option key={fontSize} value={fontSize}>{fontSize}</option>;
-    });
+
     return (
-      <div style={{ display: 'flex', padding: '15px' }}>
-        <div style={{ flex: '1 0 25%' }}>
-          <Button onClick={() => this.updateEditorState(
-            RichUtils.toggleInlineStyle(this.state.editorState, 'ITALIC'))}>
-            ITALIC
-          </Button>
-          <Button onClick={() => this.updateEditorState(
-            RichUtils.toggleInlineStyle(this.state.editorState, 'ITALIC'))}>
-            CustomStyleMap Styles
-          </Button>
-          <Button
-            onClick={this.removeFontSize}
-          >
-            Remove FontSize
-          </Button>
-          <Button
-            onClick={this.addFontSize('24px')}
-          >
-            Add FontSize
-          </Button>
-          <Button
-            onClick={() => this.toggleFontSize('70px')}
-          >
-            toggle FontSize
-          </Button>
-          <select onChange={e => this.toggleFontSize(e.target.value)}>
-            {options(['12px', '24px', '36px', '50px', '72px'])}
-          </select>
-          <select onChange={e => this.toggleColor(e.target.value)}>
-            {options(['green', 'blue', 'red', 'purple', 'orange'])}
-          </select>
-          <select onChange={e => this.toggleTextTransform(e.target.value)}>
-            {options(['uppercase', 'capitalize'])}
-          </select>
+      <div style={{ display: 'flex', flexWrap: 'no-wrap', padding: '15px' }}>
+        <div style={{ flex: '0 0 25%' }}>
+          <div>
+            <h2>Toggle Colors</h2>
+            <Button
+              style={{ background: styles.color.current(this.state.editorState) === 'red' ? 'red' : null }}
+              onClick={() => this.toggleColor('red')}
+            >
+              red
+            </Button>
+            <Button
+              style={{ background: styles.color.current(this.state.editorState) === 'blue' ? 'blue' : null }}
+              onClick={() => this.toggleColor('blue')}
+            >
+              blue
+            </Button>
+          </div>
+          <div>
+            <h2>Font Size</h2>
+            <Button
+              onClick={this.removeFontSize}
+            >
+              Remove FontSize
+            </Button>
+            <Button
+              onClick={() => this.toggleFontSize('70px')}
+            >
+              toggle FontSize
+            </Button>
+          </div>
         </div>
-        <div style={{ flex: '1 0 25%' }} onClick={this.focusEditor}>
+        <div style={{ flex: '0 0 25%' }} onClick={this.focusEditor}>
           <h2>Draft-JS Editor</h2>
           <Editor
             ref={this.setEditorRef}
@@ -117,11 +105,11 @@ class RichEditor extends React.Component {
             spellCheck
           />
         </div>
-        <div style={{ flex: '1 0 25%' }}>
+        <div style={{ flex: '0 0 25%' }}>
           <h2>Exported To HTML</h2>
           <div dangerouslySetInnerHTML={{ __html: html }}/>
         </div>
-        <div style={{ flex: '1 0 25%' }}>
+        <div style={{ flex: '0 0 25%' }}>
           <h2>ContentState</h2>
           <div>
             <pre>
@@ -130,7 +118,8 @@ class RichEditor extends React.Component {
           </div>
         </div>
       </div>
-    );
+    )
+      ;
   }
 }
 
