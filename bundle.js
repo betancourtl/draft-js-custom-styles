@@ -22369,6 +22369,8 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 	var _react = __webpack_require__(2);
 
 	var _react2 = _interopRequireDefault(_react);
@@ -22405,6 +22407,12 @@
 	    customStyleFn = _createStyles.customStyleFn,
 	    exporter = _createStyles.exporter;
 
+	var Button = function Button(props) {
+	  return _react2.default.createElement('button', _extends({ onMouseDown: function onMouseDown(e) {
+	      return e.preventDefault();
+	    } }, props));
+	};
+
 	var RichEditor = function (_React$Component) {
 	  _inherits(RichEditor, _React$Component);
 
@@ -22412,6 +22420,10 @@
 	    _classCallCheck(this, RichEditor);
 
 	    var _this = _possibleConstructorReturn(this, (RichEditor.__proto__ || Object.getPrototypeOf(RichEditor)).call(this, props));
+
+	    _this.focusEditor = function () {
+	      setTimeout(_this.editorRef.focus, 5);
+	    };
 
 	    _this.toggleFontSize = function (fontSize) {
 	      var newEditorState = styles.fontSize.toggle(_this.state.editorState, fontSize);
@@ -22436,21 +22448,24 @@
 	    _this.toggleColor = function (color) {
 	      var newEditorState = styles.color.toggle(_this.state.editorState, color);
 
-	      return _this.updateEditorState(newEditorState);
+	      return _this.updateEditorState(newEditorState, _this.focusEditor);
 	    };
 
 	    _this.toggleTextTransform = function (transform) {
 	      var newEditorState = styles.textTransform.toggle(_this.state.editorState, transform);
 
-	      return _this.updateEditorState(newEditorState);
+	      return _this.updateEditorState(newEditorState, _this.focusEditor);
 	    };
 
 	    _this.state = {
 	      editorState: new _draftJsRawContentState2.default().addBlock('Hello World', 'header-two').toEditorState(),
 	      readOnly: false
 	    };
-	    _this.updateEditorState = function (editorState) {
-	      return _this.setState({ editorState: editorState });
+	    _this.updateEditorState = function (editorState, cb) {
+	      return _this.setState({ editorState: editorState }, cb);
+	    };
+	    _this.setEditorRef = function (ref) {
+	      return _this.editorRef = ref;
 	    };
 	    return _this;
 	  }
@@ -22478,39 +22493,37 @@
 	        { style: { display: 'flex', padding: '15px' } },
 	        _react2.default.createElement(
 	          'div',
-	          { style: { flex: '1 0 25%' }, onMouseDown: function onMouseDown(e) {
-	              return e.preventDefault();
-	            } },
+	          { style: { flex: '1 0 25%' } },
 	          _react2.default.createElement(
-	            'button',
+	            Button,
 	            { onClick: function onClick() {
 	                return _this2.updateEditorState(_draftJs.RichUtils.toggleInlineStyle(_this2.state.editorState, 'ITALIC'));
 	              } },
 	            'ITALIC'
 	          ),
 	          _react2.default.createElement(
-	            'button',
+	            Button,
 	            { onClick: function onClick() {
 	                return _this2.updateEditorState(_draftJs.RichUtils.toggleInlineStyle(_this2.state.editorState, 'ITALIC'));
 	              } },
 	            'CustomStyleMap Styles'
 	          ),
 	          _react2.default.createElement(
-	            'button',
+	            Button,
 	            {
 	              onClick: this.removeFontSize
 	            },
 	            'Remove FontSize'
 	          ),
 	          _react2.default.createElement(
-	            'button',
+	            Button,
 	            {
 	              onClick: this.addFontSize('24px')
 	            },
 	            'Add FontSize'
 	          ),
 	          _react2.default.createElement(
-	            'button',
+	            Button,
 	            {
 	              onClick: function onClick() {
 	                return _this2.toggleFontSize('70px');
@@ -22542,13 +22555,14 @@
 	        ),
 	        _react2.default.createElement(
 	          'div',
-	          { style: { flex: '1 0 25%' } },
+	          { style: { flex: '1 0 25%' }, onClick: this.focusEditor },
 	          _react2.default.createElement(
 	            'h2',
 	            null,
 	            'Draft-JS Editor'
 	          ),
 	          _react2.default.createElement(_draftJs.Editor, {
+	            ref: this.setEditorRef,
 	            customStyleFn: customStyleFn,
 	            customStyleMap: customStyleMap,
 	            editorState: editorState,
