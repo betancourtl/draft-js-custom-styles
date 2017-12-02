@@ -42,7 +42,7 @@ describe('createStyles', () => {
 describe('add()', () => {
   const config = ['color'];
   const { styles } = createStyles(config);
-  it('should add a custom inline style', () => {
+  it('should add a custom inline style on a non-collapsed selection', () => {
     const editorState = new Raw()
       .addBlock('block 1')
       .anchorKey(0)
@@ -57,7 +57,7 @@ describe('add()', () => {
         offset: 0,
       }]);
   });
-  it('should add a remove the old inline styles and apply the new one', () => {
+  it('should add 2 different colors', () => {
     const editorState = new Raw()
       .addBlock('block 1')
       .anchorKey(0)
@@ -96,7 +96,7 @@ describe('remove()', () => {
 describe('toggle()', () => {
   const config = ['color'];
   const { styles } = createStyles(config);
-  it('should add a custom inline style', () => {
+  it('should add a custom inline style to a non-collapsed selection', () => {
     const editorState = new Raw()
       .addBlock('block 1')
       .anchorKey(0)
@@ -116,6 +116,31 @@ describe('toggle()', () => {
     const inlineStyleRanges = blockInlineStyleRanges(newEditorStateNoStyle, 0);
     // Remove styles
     expect(inlineStyleRanges).to.deep.equal([]);
+  });
+  it('should add inlineStyleOverride to collapsed selection', () => {
+    const editorState = new Raw()
+      .addBlock('block 1')
+      .anchorKey(2)
+      .focusKey(2)
+      .toEditorState();
+    const newEditorState = styles.color.toggle(editorState, 'red');
+    const inlineStyleRanges = blockInlineStyleRanges(newEditorState, 0);
+    const inlineStyleOverride = newEditorState.getInlineStyleOverride();
+    expect(inlineStyleRanges).to.deep.equal([]);
+    expect(inlineStyleOverride.toJS()).to.deep.equal(['CUSTOM_COLOR_red']);
+  });
+  it('should add and remove inlineStyleOverride to collapsed selection', () => {
+    const editorState = new Raw()
+      .addBlock('block 1')
+      .anchorKey(2)
+      .focusKey(2)
+      .toEditorState();
+    const newEditorState = styles.color.toggle(editorState, 'red');
+    const newEditorState2 = styles.color.toggle(newEditorState, 'red');
+    const inlineStyleRanges = blockInlineStyleRanges(newEditorState2, 0);
+    const inlineStyleOverride = newEditorState2.getInlineStyleOverride();
+    expect(inlineStyleRanges).to.deep.equal([]);
+    expect(inlineStyleOverride.toJS()).to.deep.equal([]);
   });
 });
 

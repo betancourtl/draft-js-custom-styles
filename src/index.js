@@ -85,9 +85,19 @@ const removeAndAdd = prefix => (editorState, style) => {
 
 const toggleStyle = prefix => (editorState, value) => {
   const style = prefix + value;
+  const currentStyle = editorState.getCurrentInlineStyle();
+  const isCollapsed = editorState.getSelection().isCollapsed();
+
+  if (isCollapsed) {
+    const styleOverride = currentStyle.has(style)
+      ? currentStyle.remove(style)
+      : currentStyle.add(style);
+
+    return EditorState.setInlineStyleOverride(editorState, styleOverride);
+  }
+
   const editorStateWithoutColorStyles = removeStyle(prefix)(editorState);
-  const currentInlineStyles = editorState.getCurrentInlineStyle();
-  if (!currentInlineStyles.has(style)) {
+  if (!currentStyle.has(style)) {
     return addStyle(prefix)(editorStateWithoutColorStyles, value);
   }
 

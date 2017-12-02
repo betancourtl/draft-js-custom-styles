@@ -1,7 +1,7 @@
 import React from 'react';
-import { Editor, convertToRaw, RichUtils } from 'draft-js';
-import { stateToHTML } from 'draft-js-export-html';
 import Raw from 'draft-js-raw-content-state';
+import { stateToHTML } from 'draft-js-export-html';
+import { Editor, convertToRaw, RichUtils } from 'draft-js';
 import createStyles from '../src';
 
 const customStyleMap = {
@@ -47,8 +47,8 @@ class RichEditor extends React.Component {
     return this.updateEditorState(newEditorState);
   };
 
-  toggleTextTransform = color => {
-    const newEditorState = styles.textTransform.toggle(this.state.editorState, color);
+  toggleTextTransform = transform => {
+    const newEditorState = styles.textTransform.toggle(this.state.editorState, transform);
 
     return this.updateEditorState(newEditorState);
   };
@@ -62,7 +62,7 @@ class RichEditor extends React.Component {
     });
     return (
       <div style={{ display: 'flex', padding: '15px' }}>
-        <div style={{ flex: '1 0 25%' }}>
+        <div style={{ flex: '1 0 25%' }} onMouseDown={e => e.preventDefault()}>
           <button onClick={() => this.updateEditorState(
             RichUtils.toggleInlineStyle(this.state.editorState, 'ITALIC'))}>
             ITALIC
