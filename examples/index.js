@@ -13,6 +13,8 @@ const customStyleMap = {
 
 const { styles, customStyleFn, exporter } = createStyles(['color', 'font-size', 'text-transform'], 'CUSTOM_', customStyleMap);
 
+const Button = props => <button onMouseDown={e => e.preventDefault()} {...props} />;
+
 class RichEditor extends React.Component {
   constructor(props) {
     super(props);
@@ -20,8 +22,13 @@ class RichEditor extends React.Component {
       editorState: new Raw().addBlock('Hello World', 'header-two').toEditorState(),
       readOnly: false,
     };
-    this.updateEditorState = editorState => this.setState({ editorState });
+    this.updateEditorState = (editorState, cb) => this.setState({ editorState }, cb);
+    this.setEditorRef = ref => this.editorRef = ref;
   }
+
+  focusEditor = () => {
+    setTimeout(this.editorRef.focus, 5);
+  };
 
   toggleFontSize = fontSize => {
     const newEditorState = styles.fontSize.toggle(this.state.editorState, fontSize);
@@ -44,13 +51,13 @@ class RichEditor extends React.Component {
   toggleColor = color => {
     const newEditorState = styles.color.toggle(this.state.editorState, color);
 
-    return this.updateEditorState(newEditorState);
+    return this.updateEditorState(newEditorState, this.focusEditor);
   };
 
   toggleTextTransform = transform => {
     const newEditorState = styles.textTransform.toggle(this.state.editorState, transform);
 
-    return this.updateEditorState(newEditorState);
+    return this.updateEditorState(newEditorState, this.focusEditor);
   };
 
   render() {
@@ -62,30 +69,30 @@ class RichEditor extends React.Component {
     });
     return (
       <div style={{ display: 'flex', padding: '15px' }}>
-        <div style={{ flex: '1 0 25%' }} onMouseDown={e => e.preventDefault()}>
-          <button onClick={() => this.updateEditorState(
+        <div style={{ flex: '1 0 25%' }}>
+          <Button onClick={() => this.updateEditorState(
             RichUtils.toggleInlineStyle(this.state.editorState, 'ITALIC'))}>
             ITALIC
-          </button>
-          <button onClick={() => this.updateEditorState(
+          </Button>
+          <Button onClick={() => this.updateEditorState(
             RichUtils.toggleInlineStyle(this.state.editorState, 'ITALIC'))}>
             CustomStyleMap Styles
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={this.removeFontSize}
           >
             Remove FontSize
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={this.addFontSize('24px')}
           >
             Add FontSize
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => this.toggleFontSize('70px')}
           >
             toggle FontSize
-          </button>
+          </Button>
           <select onChange={e => this.toggleFontSize(e.target.value)}>
             {options(['12px', '24px', '36px', '50px', '72px'])}
           </select>
@@ -96,9 +103,10 @@ class RichEditor extends React.Component {
             {options(['uppercase', 'capitalize'])}
           </select>
         </div>
-        <div style={{ flex: '1 0 25%' }}>
+        <div style={{ flex: '1 0 25%' }} onClick={this.focusEditor}>
           <h2>Draft-JS Editor</h2>
           <Editor
+            ref={this.setEditorRef}
             customStyleFn={customStyleFn}
             customStyleMap={customStyleMap}
             editorState={editorState}
