@@ -94,7 +94,7 @@ describe('remove()', () => {
 });
 
 describe('toggle()', () => {
-  const config = ['color'];
+  const config = ['color', 'font-size'];
   const { styles } = createStyles(config);
   it('should add a custom inline style to a non-collapsed selection', () => {
     const editorState = new Raw()
@@ -141,6 +141,48 @@ describe('toggle()', () => {
     const inlineStyleOverride = newEditorState2.getInlineStyleOverride();
     expect(inlineStyleRanges).to.deep.equal([]);
     expect(inlineStyleOverride.toJS()).to.deep.equal([]);
+  });
+  it('should add 2 color styles, only blue should be set as inlineStyleOverride', () => {
+    const editorState = new Raw()
+      .addBlock('block 1')
+      .anchorKey(2)
+      .focusKey(2)
+      .toEditorState();
+    const newEditorState = styles.color.toggle(editorState, 'red');
+    const newEditorState2 = styles.color.toggle(newEditorState, 'blue');
+    const inlineStyleRanges = blockInlineStyleRanges(newEditorState2, 0);
+    const inlineStyleOverride = newEditorState2.getInlineStyleOverride();
+    expect(inlineStyleRanges).to.deep.equal([]);
+    expect(inlineStyleOverride.toJS()).to.deep.equal(['CUSTOM_COLOR_blue']);
+  });
+  it('should add 3 color styles, only blue should be set as inlineStyleOverride', () => {
+    const editorState = new Raw()
+      .addBlock('block 1')
+      .anchorKey(2)
+      .focusKey(2)
+      .toEditorState();
+    const newEditorState = styles.color.toggle(editorState, 'red');
+    const newEditorState2 = styles.color.toggle(newEditorState, 'green');
+    const newEditorState3 = styles.color.toggle(newEditorState2, 'blue');
+    const inlineStyleRanges = blockInlineStyleRanges(newEditorState3, 0);
+    const inlineStyleOverride = newEditorState3.getInlineStyleOverride();
+    expect(inlineStyleRanges).to.deep.equal([]);
+    expect(inlineStyleOverride.toJS()).to.deep.equal(['CUSTOM_COLOR_blue']);
+  });
+  it('should add 2 different styles, only color blue and font-size 12px should be set as inlineStyleOverride', () => {
+    const editorState = new Raw()
+      .addBlock('block 1')
+      .anchorKey(2)
+      .focusKey(2)
+      .toEditorState();
+    const newEditorState = styles.color.toggle(editorState, 'red');
+    const newEditorState2 = styles.fontSize.toggle(newEditorState, '12px');
+    const newEditorState3 = styles.color.toggle(newEditorState2, 'blue');
+    const newEditorState4 = styles.color.toggle(newEditorState3, 'green');
+    const inlineStyleRanges = blockInlineStyleRanges(newEditorState4, 0);
+    const inlineStyleOverride = newEditorState4.getInlineStyleOverride();
+    expect(inlineStyleRanges).to.deep.equal([]);
+    expect(inlineStyleOverride.toJS()).to.deep.equal(['CUSTOM_FONT_SIZE_12px', 'CUSTOM_COLOR_green']);
   });
 });
 

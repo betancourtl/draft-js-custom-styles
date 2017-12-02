@@ -83,15 +83,22 @@ const removeAndAdd = prefix => (editorState, style) => {
   return addStyle(prefix)(removeStyle(prefix)(editorState), style);
 };
 
+const filterOverrideStyles = (prefix, styles) => styles.filter(style => !style.startsWith(prefix));
+
 const toggleStyle = prefix => (editorState, value) => {
   const style = prefix + value;
   const currentStyle = editorState.getCurrentInlineStyle();
   const isCollapsed = editorState.getSelection().isCollapsed();
 
   if (isCollapsed) {
+    // We remove styles with the prefix from the OrderedSet to avoid having
+    // variants of the same prefix.
+    const newStyles = filterOverrideStyles(prefix, currentStyle);
+
+    // We check the original override styles
     const styleOverride = currentStyle.has(style)
-      ? currentStyle.remove(style)
-      : currentStyle.add(style);
+      ? newStyles.remove(style)
+      : newStyles.add(style);
 
     return EditorState.setInlineStyleOverride(editorState, styleOverride);
   }
