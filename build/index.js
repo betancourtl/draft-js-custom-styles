@@ -111,6 +111,12 @@ var removeAndAdd = function removeAndAdd(prefix) {
   };
 };
 
+var filterOverrideStyles = function filterOverrideStyles(prefix, styles) {
+  return styles.filter(function (style) {
+    return !style.startsWith(prefix);
+  });
+};
+
 var toggleStyle = function toggleStyle(prefix) {
   return function (editorState, value) {
     var style = prefix + value;
@@ -118,7 +124,12 @@ var toggleStyle = function toggleStyle(prefix) {
     var isCollapsed = editorState.getSelection().isCollapsed();
 
     if (isCollapsed) {
-      var styleOverride = currentStyle.has(style) ? currentStyle.remove(style) : currentStyle.add(style);
+      // We remove styles with the prefix from the OrderedSet to avoid having
+      // variants of the same prefix.
+      var newStyles = filterOverrideStyles(prefix, currentStyle);
+
+      // We check the original override styles
+      var styleOverride = currentStyle.has(style) ? newStyles.remove(style) : newStyles.add(style);
 
       return _draftJs.EditorState.setInlineStyleOverride(editorState, styleOverride);
     }
