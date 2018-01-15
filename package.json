@@ -13,7 +13,7 @@
     "test:watch": "npm run test -- --watch",
     "watch": "watch 'npm run build' src",
     "build": "babel src -d build",
-    "webpack-build": "webpack -p",
+    "webpack-build": "NODE_ENV=production webpack -p",
     "deploy": "npm run webpack-build && gh-pages -d docs",
     "prepare": "npm run build",
     "release": "np && npm run deploy"
