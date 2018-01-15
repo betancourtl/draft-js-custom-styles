@@ -110,7 +110,6 @@ const toggleInlineStyleOverride = (prefix, style, editorState) => {
   // variants of the same prefix.
   const newStyles = filterOverrideStyles(prefix, currentStyle);
 
-  // We check the original override styles
   const styleOverride = currentStyle.has(style)
     ? newStyles.remove(style)
     : newStyles.add(style);
