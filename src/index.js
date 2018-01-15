@@ -66,12 +66,18 @@ const filterDynamicStyle = prefix => char => {
   return char.set('style', filteredStyles);
 };
 
-const addStyle = prefix => (editorState, style) => {
+const addStyle = prefix => (editorState, value) => {
+  const style = prefix + value;
   const newContentState = Modifier.applyInlineStyle(
     editorState.getCurrentContent(),
     editorState.getSelection(),
-    prefix + style
+    style
   );
+
+  const isCollapsed = editorState.getSelection().isCollapsed();
+  if (isCollapsed) {
+    return addInlineStyleOverride(prefix, style, editorState);
+  }
 
   return EditorState.push(editorState, newContentState, 'change-inline-style');
 };
@@ -87,7 +93,17 @@ const removeAndAdd = prefix => (editorState, style) => {
 const filterOverrideStyles = (prefix, styles) => styles.filter(
   style => !style.startsWith(prefix));
 
-const setInlineStyleOverride = (prefix, style, editorState) => {
+const addInlineStyleOverride = (prefix, style, editorState) => {
+  const currentStyle = editorState.getCurrentInlineStyle();
+
+  // We remove styles with the prefix from the OrderedSet to avoid having
+  // variants of the same prefix.
+  const newStyles = filterOverrideStyles(prefix, currentStyle);
+  
+  return EditorState.setInlineStyleOverride(editorState, newStyles.add(style));
+};
+
+const toggleInlineStyleOverride = (prefix, style, editorState) => {
   const currentStyle = editorState.getCurrentInlineStyle();
 
   // We remove styles with the prefix from the OrderedSet to avoid having
@@ -108,7 +124,7 @@ const toggleStyle = prefix => (editorState, value) => {
   const isCollapsed = editorState.getSelection().isCollapsed();
 
   if (isCollapsed) {
-    return setInlineStyleOverride(prefix, style, editorState);
+    return toggleInlineStyleOverride(prefix, style, editorState);
   }
 
   const editorStateWithoutCustomStyles = removeStyle(prefix)(editorState);

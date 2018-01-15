@@ -42,14 +42,14 @@ class RichEditor extends React.Component {
     return this.updateEditorState(newEditorState);
   };
 
-  addFontSize = val => () => {
-    const newEditorState = styles.fontSize.add(this.state.editorState, val);
-
-    return this.updateEditorState(newEditorState);
-  };
-
   toggleColor = color => {
     const newEditorState = styles.color.toggle(this.state.editorState, color);
+
+    return this.updateEditorState(newEditorState, this.focusEditor);
+  };
+
+  addColor = color => {
+    const newEditorState = styles.color.add(this.state.editorState, color);
 
     return this.updateEditorState(newEditorState, this.focusEditor);
   };
@@ -78,7 +78,22 @@ class RichEditor extends React.Component {
             </Button>
           </div>
           <div>
-            <h2>Font Size</h2>
+            <h2>Add Colors</h2>
+            <Button
+              style={{ background: styles.color.current(this.state.editorState) === 'red' ? 'red' : null }}
+              onClick={() => this.addColor('red')}
+            >
+              red
+            </Button>
+            <Button
+              style={{ background: styles.color.current(this.state.editorState) === 'blue' ? 'blue' : null }}
+              onClick={() => this.addColor('blue')}
+            >
+              blue
+            </Button>
+          </div>
+          <div>
+            <h2>Toggle font Size</h2>
             <Button
               onClick={this.removeFontSize}
             >
@@ -107,7 +122,7 @@ class RichEditor extends React.Component {
         </div>
         <div style={{ flex: '0 0 25%' }}>
           <h2>Exported To HTML</h2>
-          <div dangerouslySetInnerHTML={{ __html: html }}/>
+          <div dangerouslySetInnerHTML={{ __html: html }} />
         </div>
         <div style={{ flex: '0 0 25%' }}>
           <h2>ContentState</h2>
