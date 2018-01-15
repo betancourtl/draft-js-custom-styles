@@ -66,12 +66,19 @@ const filterDynamicStyle = prefix => char => {
   return char.set('style', filteredStyles);
 };
 
-const addStyle = prefix => (editorState, style) => {
+const addStyle = prefix => (editorState, value) => {
+  const style = prefix + value;
   const newContentState = Modifier.applyInlineStyle(
     editorState.getCurrentContent(),
     editorState.getSelection(),
-    prefix + style
+    style
   );
+
+  const isCollapsed = editorState.getSelection().isCollapsed();
+  if (isCollapsed) {
+    return addInlineStyleOverride(prefix, style, editorState);
+  }
+
   return EditorState.push(editorState, newContentState, 'change-inline-style');
 };
 
@@ -83,7 +90,32 @@ const removeAndAdd = prefix => (editorState, style) => {
   return addStyle(prefix)(removeStyle(prefix)(editorState), style);
 };
 
-const filterOverrideStyles = (prefix, styles) => styles.filter(style => !style.startsWith(prefix));
+const filterOverrideStyles = (prefix, styles) => styles.filter(
+  style => !style.startsWith(prefix));
+
+const addInlineStyleOverride = (prefix, style, editorState) => {
+  const currentStyle = editorState.getCurrentInlineStyle();
+
+  // We remove styles with the prefix from the OrderedSet to avoid having
+  // variants of the same prefix.
+  const newStyles = filterOverrideStyles(prefix, currentStyle);
+
+  return EditorState.setInlineStyleOverride(editorState, newStyles.add(style));
+};
+
+const toggleInlineStyleOverride = (prefix, style, editorState) => {
+  const currentStyle = editorState.getCurrentInlineStyle();
+
+  // We remove styles with the prefix from the OrderedSet to avoid having
+  // variants of the same prefix.
+  const newStyles = filterOverrideStyles(prefix, currentStyle);
+
+  const styleOverride = currentStyle.has(style)
+    ? newStyles.remove(style)
+    : newStyles.add(style);
+
+  return EditorState.setInlineStyleOverride(editorState, styleOverride);
+};
 
 const toggleStyle = prefix => (editorState, value) => {
   const style = prefix + value;
@@ -91,24 +123,14 @@ const toggleStyle = prefix => (editorState, value) => {
   const isCollapsed = editorState.getSelection().isCollapsed();
 
   if (isCollapsed) {
-    // We remove styles with the prefix from the OrderedSet to avoid having
-    // variants of the same prefix.
-    const newStyles = filterOverrideStyles(prefix, currentStyle);
-
-    // We check the original override styles
-    const styleOverride = currentStyle.has(style)
-      ? newStyles.remove(style)
-      : newStyles.add(style);
-
-    return EditorState.setInlineStyleOverride(editorState, styleOverride);
+    return toggleInlineStyleOverride(prefix, style, editorState);
   }
 
-  const editorStateWithoutColorStyles = removeStyle(prefix)(editorState);
-  if (!currentStyle.has(style)) {
-    return addStyle(prefix)(editorStateWithoutColorStyles, value);
-  }
+  const editorStateWithoutCustomStyles = removeStyle(prefix)(editorState);
 
-  return EditorState.forceSelection(editorStateWithoutColorStyles, editorState.getSelection());
+  return !currentStyle.has(style)
+    ? addStyle(prefix)(editorStateWithoutCustomStyles, value)
+    : EditorState.forceSelection(editorStateWithoutCustomStyles, editorState.getSelection());
 };
 
 /**

@@ -34,13 +34,13 @@ describe('createStyles', () => {
     expect(exporter).to.exist;
   });
   it('should return an empty object if no styles are passed', () => {
-    const { styles } = createStyles();
-    expect(styles).to.deep.equal({});
+    const { styles: createdStyles } = createStyles();
+    expect(createdStyles).to.deep.equal({});
   });
 });
 
 describe('add()', () => {
-  const config = ['color'];
+  const config = ['color', 'font-size'];
   const { styles } = createStyles(config);
   it('should add a custom inline style on a non-collapsed selection', () => {
     const editorState = new Raw()
@@ -72,6 +72,35 @@ describe('add()', () => {
         length: 5,
         offset: 0,
       }]);
+  });
+  it('should add a customStyleOverride when adding style to a collapsed selection', () => {
+    const editorState = new Raw()
+      .addBlock('block 1')
+      .collapse(3)
+      .toEditorState();
+    const newEditorState = styles.color.add(editorState, 'red');
+    const override = newEditorState.getInlineStyleOverride();
+    expect(override.toJS()).to.deep.equal(OrderedSet(['CUSTOM_COLOR_red']).toJS());
+  });
+  it('should add a 2 of the same prefixed styles to the same collapsed selection and show only the latest style', () => {
+    const editorState = new Raw()
+      .addBlock('block 1')
+      .collapse(3)
+      .toEditorState();
+    const newEditorState = styles.color.add(editorState, 'red');
+    const newEditorState2 = styles.color.add(newEditorState, 'blue');
+    const override = newEditorState2.getInlineStyleOverride();
+    expect(override.toJS()).to.deep.equal(OrderedSet(['CUSTOM_COLOR_blue']).toJS());
+  });
+  it('should add 2 of the different prefixed styles to the same collapsed selection and show both', () => {
+    const editorState = new Raw()
+      .addBlock('block 1')
+      .collapse(3)
+      .toEditorState();
+    const newEditorState = styles.color.add(editorState, 'red');
+    const newEditorState2 = styles.fontSize.add(newEditorState, '12px');
+    const override = newEditorState2.getInlineStyleOverride();
+    expect(override.toJS()).to.deep.equal(OrderedSet(['CUSTOM_COLOR_red', 'CUSTOM_FONT_SIZE_12px']).toJS());
   });
 });
 
@@ -259,7 +288,7 @@ describe('exporter()', () => {
       BOLD: {
         style: {
           fontWeight: 'bold',
-        }
+        },
       },
       CUSTOM_BACKGROUND_COLOR_green: {
         style: {
