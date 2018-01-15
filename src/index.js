@@ -99,7 +99,7 @@ const addInlineStyleOverride = (prefix, style, editorState) => {
   // We remove styles with the prefix from the OrderedSet to avoid having
   // variants of the same prefix.
   const newStyles = filterOverrideStyles(prefix, currentStyle);
-  
+
   return EditorState.setInlineStyleOverride(editorState, newStyles.add(style));
 };
 
