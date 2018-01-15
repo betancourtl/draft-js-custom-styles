@@ -93,8 +93,15 @@ var filterDynamicStyle = function filterDynamicStyle(prefix) {
 };
 
 var addStyle = function addStyle(prefix) {
-  return function (editorState, style) {
-    var newContentState = _draftJs.Modifier.applyInlineStyle(editorState.getCurrentContent(), editorState.getSelection(), prefix + style);
+  return function (editorState, value) {
+    var style = prefix + value;
+    var newContentState = _draftJs.Modifier.applyInlineStyle(editorState.getCurrentContent(), editorState.getSelection(), style);
+
+    var isCollapsed = editorState.getSelection().isCollapsed();
+    if (isCollapsed) {
+      return addInlineStyleOverride(prefix, style, editorState);
+    }
+
     return _draftJs.EditorState.push(editorState, newContentState, 'change-inline-style');
   };
 };
@@ -117,6 +124,28 @@ var filterOverrideStyles = function filterOverrideStyles(prefix, styles) {
   });
 };
 
+var addInlineStyleOverride = function addInlineStyleOverride(prefix, style, editorState) {
+  var currentStyle = editorState.getCurrentInlineStyle();
+
+  // We remove styles with the prefix from the OrderedSet to avoid having
+  // variants of the same prefix.
+  var newStyles = filterOverrideStyles(prefix, currentStyle);
+
+  return _draftJs.EditorState.setInlineStyleOverride(editorState, newStyles.add(style));
+};
+
+var toggleInlineStyleOverride = function toggleInlineStyleOverride(prefix, style, editorState) {
+  var currentStyle = editorState.getCurrentInlineStyle();
+
+  // We remove styles with the prefix from the OrderedSet to avoid having
+  // variants of the same prefix.
+  var newStyles = filterOverrideStyles(prefix, currentStyle);
+
+  var styleOverride = currentStyle.has(style) ? newStyles.remove(style) : newStyles.add(style);
+
+  return _draftJs.EditorState.setInlineStyleOverride(editorState, styleOverride);
+};
+
 var toggleStyle = function toggleStyle(prefix) {
   return function (editorState, value) {
     var style = prefix + value;
@@ -124,22 +153,12 @@ var toggleStyle = function toggleStyle(prefix) {
     var isCollapsed = editorState.getSelection().isCollapsed();
 
     if (isCollapsed) {
-      // We remove styles with the prefix from the OrderedSet to avoid having
-      // variants of the same prefix.
-      var newStyles = filterOverrideStyles(prefix, currentStyle);
-
-      // We check the original override styles
-      var styleOverride = currentStyle.has(style) ? newStyles.remove(style) : newStyles.add(style);
-
-      return _draftJs.EditorState.setInlineStyleOverride(editorState, styleOverride);
+      return toggleInlineStyleOverride(prefix, style, editorState);
     }
 
-    var editorStateWithoutColorStyles = removeStyle(prefix)(editorState);
-    if (!currentStyle.has(style)) {
-      return addStyle(prefix)(editorStateWithoutColorStyles, value);
-    }
+    var editorStateWithoutCustomStyles = removeStyle(prefix)(editorState);
 
-    return _draftJs.EditorState.forceSelection(editorStateWithoutColorStyles, editorState.getSelection());
+    return !currentStyle.has(style) ? addStyle(prefix)(editorStateWithoutCustomStyles, value) : _draftJs.EditorState.forceSelection(editorStateWithoutCustomStyles, editorState.getSelection());
   };
 };
 
