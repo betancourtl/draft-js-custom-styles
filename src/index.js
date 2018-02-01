@@ -223,7 +223,7 @@ export const createInlineStyleExportObject = (prefix, customStyleMap) => (acc, s
 
   // custom styles
   const css = match[1].toLowerCase();
-  const value = match[2].toLowerCase();
+  const value = match[2];
   const inlineStyle = {
     [style]: {
       style: {

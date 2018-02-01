@@ -253,13 +253,13 @@ describe('exporter()', () => {
       .anchorKey(0)
       .focusKey(5)
       .toEditorState();
-    const newEditorState = styles.color.add(editorState, 'red');
+    const newEditorState = styles.color.add(editorState, '#FF0000');
     const newEditorState2 = styles.backgroundColor.add(newEditorState, 'green');
     const inlineStyles = exporter(newEditorState2);
     expect(inlineStyles).to.deep.equal({
-      CUSTOM_COLOR_red: {
+      'CUSTOM_COLOR_#FF0000': {
         style: {
-          color: 'red',
+          color: '#FF0000',
         },
       },
       CUSTOM_BACKGROUND_COLOR_green: {
