@@ -261,7 +261,7 @@ var createInlineStyleExportObject = exports.createInlineStyleExportObject = func
 
     // custom styles
     var css = match[1].toLowerCase();
-    var value = match[2].toLowerCase();
+    var value = match[2];
     var inlineStyle = _defineProperty({}, style, {
       style: _defineProperty({}, (0, _lodash2.default)(css), value)
     });
