@@ -41,7 +41,7 @@
     "chai": "^3.5.0",
     "css-loader": "0.25.0",
     "draft-js-export-html": "0.5.2",
-    "draft-js-raw-content-state": "1.0.3",
+    "draft-js-raw-content-state": "1.2.6",
     "enzyme": "2.5.1",
     "eslint": "3.7.0",
     "eslint-config-airbnb": "12.0.0",
