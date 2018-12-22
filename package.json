@@ -1,6 +1,6 @@
 {
   "name": "draft-js-custom-styles",
-  "version": "2.0.6",
+  "version": "2.1.1",
   "description": "Create dynamic inline styles for draft-js",
   "main": "build/index.js",
   "repository": {
@@ -31,7 +31,8 @@
     "node": ">=4.2.4"
   },
   "peerDependencies": {
-    "draft-js": "0.10.x"
+    "draft-js": "0.10.x",
+    "immutable": "^3.x"
   },
   "devDependencies": {
     "babel-cli": "6.24.1",
@@ -44,16 +45,17 @@
     "chai": "^3.5.0",
     "css-loader": "0.25.0",
     "draft-js-export-html": "0.5.2",
+    "draft-js-import-html": "^1.2.1",
     "draft-js-raw-content-state": "1.2.6",
     "enzyme": "2.5.1",
     "eslint": "3.7.0",
     "eslint-config-airbnb": "12.0.0",
     "eslint-loader": "1.5.0",
-    "eslint-plugin-import": "2.2.0",
     "eslint-plugin-jsx-a11y": "2.2.2",
     "eslint-plugin-react": "6.3.0",
     "file-loader": "0.9.0",
     "gh-pages": "1.0.0",
+    "immutable": "^3.8.1",
     "jsdom": "^8.1.0",
     "mocha": "^2.4.5",
     "np": "2.16.1",
@@ -68,7 +70,6 @@
     "webpack-dev-server": "^1.14.0"
   },
   "dependencies": {
-    "immutable": "^3.8.1",
     "lodash.camelcase": "^4.3.0",
     "lodash.snakecase": "^4.1.1"
   },

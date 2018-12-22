@@ -1,7 +1,7 @@
 import React from 'react';
-import Raw from 'draft-js-raw-content-state';
 import { stateToHTML } from 'draft-js-export-html';
-import { Editor, convertToRaw } from 'draft-js';
+import { stateFromHTML } from 'draft-js-import-html';
+import { Editor, convertToRaw, EditorState } from 'draft-js';
 import createStyles from '../src';
 
 const customStyleMap = {
@@ -11,19 +11,29 @@ const customStyleMap = {
   },
 };
 
-const { styles, customStyleFn, exporter } = createStyles(['color', 'font-size'], 'CUSTOM_', customStyleMap);
+const { styles, customStyleFn, exporter, customInlineFn } = createStyles(['color', 'font-size'], 'CUSTOM_', customStyleMap);
+
+const html = `
+<span style="color: blue; font-size: 46px;border-bottom: 10px solid red;">
+  Hello <span style="color:red;font-size:12px;">Hello</span>
+</span>
+`;
 
 const Button = props => <button onMouseDown={e => e.preventDefault()} {...props} />;
 
-class RichEditor extends React.Component {
+class RichEditor extends React.Component {  
   constructor(props) {
     super(props);
+    ``
     this.state = {
-      editorState: new Raw().addBlock('Hello World', 'header-two').toEditorState(),
+      html: html,
+      editorState: EditorState.createWithContent(stateFromHTML(html, {
+        customInlineFn: customInlineFn(),
+      })),
       readOnly: false,
     };
     this.updateEditorState = (editorState, cb) => this.setState({ editorState }, cb);
-    this.setEditorRef = ref => this.editorRef = ref;
+    this.setEditorRef = ref => this.editorRef = ref;    
   }
 
   focusEditor = () => {
@@ -55,12 +65,34 @@ class RichEditor extends React.Component {
   };
 
   render() {
+
     const { editorState } = this.state;
     const inlineStyles = exporter(this.state.editorState);
     const html = stateToHTML(this.state.editorState.getCurrentContent(), { inlineStyles });
 
     return (
-      <div style={{ display: 'flex', flexWrap: 'no-wrap', padding: '15px' }}>
+      <div>
+      <div>
+        <textarea 
+          style={{width: '100%'}}
+          cols={10}
+          rows={10}
+          onChange={(e) => this.setState({html: e.target.value})}
+          value={this.state.html}
+        >
+        </textarea>
+        <button onClick={() => {
+          const html = this.state.html;
+          try {
+            const editorState = EditorState.createWithContent(stateFromHTML(html, {customInlineFn: customInlineFn()}));
+            this.setState({ editorState });
+          } catch (err) {
+            console.log('Error setting  EditorState');
+        }}}>
+          Import HTML
+        </button>
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', padding: '15px' }}>
         <div style={{ flex: '0 0 25%' }}>
           <div>
             <h2>Toggle Colors</h2>
@@ -133,8 +165,8 @@ class RichEditor extends React.Component {
           </div>
         </div>
       </div>
-    )
-      ;
+      </div>
+    );
   }
 }
 

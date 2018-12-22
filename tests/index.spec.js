@@ -1,11 +1,12 @@
 import { expect } from 'chai';
 import Raw from 'draft-js-raw-content-state';
-import { convertToRaw, RichUtils } from 'draft-js';
+import { convertToRaw, RichUtils, EditorState } from 'draft-js';
 import { OrderedSet } from 'immutable';
-import createStyles, { validatePrefix } from '../src';
+import createStyles, { validatePrefix, inlineStyleImporterFn } from '../src';
+import { stateFromHTML } from 'draft-js-import-html'
 
-const blockInlineStyleRanges = (editorState, i = 0) => {
-  return convertToRaw(editorState.getCurrentContent()).blocks[i].inlineStyleRanges;
+const blockInlineStyleRanges = (editorState, blockIndex = 0) => {
+  return convertToRaw(editorState.getCurrentContent()).blocks[blockIndex].inlineStyleRanges;
 };
 
 describe('createStyles', () => {
@@ -101,6 +102,38 @@ describe('add()', () => {
     const newEditorState2 = styles.fontSize.add(newEditorState, '12px');
     const override = newEditorState2.getInlineStyleOverride();
     expect(override.toJS()).to.deep.equal(OrderedSet(['CUSTOM_COLOR_red', 'CUSTOM_FONT_SIZE_12px']).toJS());
+  });
+  it('should add 2 different colors and undo redo them one by one', () => {
+    const editorState = new Raw()
+      .addBlock('block 1')
+      .anchorKey(0)
+      .focusKey(5)
+      .toEditorState();
+    const newEditorState = styles.color.add(editorState, 'red');
+    const newEditorState2 = styles.color.add(newEditorState, 'green');
+    const inlineStyleRanges = blockInlineStyleRanges(newEditorState2, 0);
+    expect(inlineStyleRanges).to.deep.equal([
+      {
+        style: 'CUSTOM_COLOR_green',
+        length: 5,
+        offset: 0,
+      }]);
+
+    const newEditorState3 = EditorState.undo(newEditorState2);
+    expect(blockInlineStyleRanges(newEditorState3, 0)).to.deep.equal([
+      {
+        style: 'CUSTOM_COLOR_red',
+        length: 5,
+        offset: 0,
+      }]);
+
+    const newEditorState4 = EditorState.redo(newEditorState3);
+    expect(blockInlineStyleRanges(newEditorState4, 0)).to.deep.equal([
+      {
+        style: 'CUSTOM_COLOR_green',
+        length: 5,
+        offset: 0,
+      }]);
   });
 });
 
@@ -212,6 +245,38 @@ describe('toggle()', () => {
     const inlineStyleOverride = newEditorState4.getInlineStyleOverride();
     expect(inlineStyleRanges).to.deep.equal([]);
     expect(inlineStyleOverride.toJS()).to.deep.equal(['CUSTOM_FONT_SIZE_12px', 'CUSTOM_COLOR_green']);
+  });
+  it('should add 2 different colors and undo redo them one by one', () => {
+    const editorState = new Raw()
+      .addBlock('block 1')
+      .anchorKey(0)
+      .focusKey(5)
+      .toEditorState();
+    const newEditorState = styles.color.toggle(editorState, 'red');
+    const newEditorState2 = styles.color.toggle(newEditorState, 'green');
+    const inlineStyleRanges = blockInlineStyleRanges(newEditorState2, 0);
+    expect(inlineStyleRanges).to.deep.equal([
+      {
+        style: 'CUSTOM_COLOR_green',
+        length: 5,
+        offset: 0,
+      }]);
+
+    const newEditorState3 = EditorState.undo(newEditorState2);
+    expect(blockInlineStyleRanges(newEditorState3, 0)).to.deep.equal([
+      {
+        style: 'CUSTOM_COLOR_red',
+        length: 5,
+        offset: 0,
+      }]);
+
+    const newEditorState4 = EditorState.redo(newEditorState3);
+    expect(blockInlineStyleRanges(newEditorState4, 0)).to.deep.equal([
+      {
+        style: 'CUSTOM_COLOR_green',
+        length: 5,
+        offset: 0,
+      }]);
   });
 });
 
@@ -355,16 +420,18 @@ describe('exporter()', () => {
       },
     });
   });
+
   it('should export custom + default + customStyleMap styles', () => {
     const editorState = new Raw()
       .addBlock('block 1')
       .anchorKey(0)
       .focusKey(5)
-      .toEditorState();
+      .toEditorState();      
     const newEditorStat1 = RichUtils.toggleInlineStyle(editorState, 'BOLD');
     const newEditorStat2 = RichUtils.toggleInlineStyle(newEditorStat1, 'MARK');
     const newEditorState3 = styles.color.add(newEditorStat2, 'red');
     const newEditorState4 = styles.backgroundColor.add(newEditorState3, 'green');
+    // console.log(JSON.stringify(newEditorState4.getCurrentContent(), null, 2))
     const inlineStyles = exporter(newEditorState4);
     expect(inlineStyles).to.deep.equal({
       CUSTOM_COLOR_red: {
@@ -425,7 +492,6 @@ describe('exporter()', () => {
     });
   });
 });
-
 describe('validatePrefix()', () => {
   it('should add an underscore if none is supplied', () => {
     const prefix = validatePrefix('TEST');
@@ -444,3 +510,24 @@ describe('validatePrefix()', () => {
     expect(prefix).to.equal('CUSTOM_');
   });
 });
+
+describe('importer', () => {
+  const html = `
+  <span style="color:red;font-size:12px;">
+    Hello
+  </span>
+  `;
+  
+  const options = {
+    customInlineFn: inlineStyleImporterFn('CUSTOM_')(),
+  };
+
+  const editorState = EditorState.createWithContent(stateFromHTML(html, options));
+    
+  it('should be true', () => {
+    const [color, fontSize] = blockInlineStyleRanges(editorState);
+    expect(color).to.deep.equal({offset: 0, length: 5, style: 'CUSTOM_COLOR_ red'});
+    expect(fontSize).to.deep.equal({offset: 0, length: 5, style: 'CUSTOM_FONT_SIZE_ 12px'});
+  });
+});    
+   

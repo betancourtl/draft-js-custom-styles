@@ -72,14 +72,16 @@ var mapSelectedCharacters = exports.mapSelectedCharacters = function mapSelected
       return block.set('characterList', chars);
     });
 
-    var newContentState = contentState.merge({
+    return contentState.merge({
       blockMap: blockMap.merge(newBlocks),
       selectionBefore: selectionState,
       selectionAfter: selectionState
     });
-
-    return _draftJs.EditorState.push(editorState, newContentState, 'change-inline-style');
   };
+};
+
+var getContentStateWithoutStyle = function getContentStateWithoutStyle(prefix, editorState) {
+  return mapSelectedCharacters(filterDynamicStyle(prefix))(editorState);
 };
 
 var filterDynamicStyle = function filterDynamicStyle(prefix) {
@@ -95,7 +97,7 @@ var filterDynamicStyle = function filterDynamicStyle(prefix) {
 var addStyle = function addStyle(prefix) {
   return function (editorState, value) {
     var style = prefix + value;
-    var newContentState = _draftJs.Modifier.applyInlineStyle(editorState.getCurrentContent(), editorState.getSelection(), style);
+    var newContentState = _draftJs.Modifier.applyInlineStyle(getContentStateWithoutStyle(prefix, editorState), editorState.getSelection(), style);
 
     var isCollapsed = editorState.getSelection().isCollapsed();
     if (isCollapsed) {
@@ -108,13 +110,7 @@ var addStyle = function addStyle(prefix) {
 
 var removeStyle = function removeStyle(prefix) {
   return function (editorState) {
-    return mapSelectedCharacters(filterDynamicStyle(prefix))(editorState);
-  };
-};
-
-var removeAndAdd = function removeAndAdd(prefix) {
-  return function (editorState, style) {
-    return addStyle(prefix)(removeStyle(prefix)(editorState), style);
+    return _draftJs.EditorState.push(editorState, getContentStateWithoutStyle(prefix, editorState), 'change-inline-style');
   };
 };
 
@@ -156,9 +152,12 @@ var toggleStyle = function toggleStyle(prefix) {
       return toggleInlineStyleOverride(prefix, style, editorState);
     }
 
-    var editorStateWithoutCustomStyles = removeStyle(prefix)(editorState);
+    if (!currentStyle.has(style)) {
+      return addStyle(prefix)(editorState, value);
+    }
 
-    return !currentStyle.has(style) ? addStyle(prefix)(editorStateWithoutCustomStyles, value) : _draftJs.EditorState.forceSelection(editorStateWithoutCustomStyles, editorState.getSelection());
+    var editorStateWithoutCustomStyles = _draftJs.EditorState.push(editorState, getContentStateWithoutStyle(prefix, editorState), 'change-inline-style');
+    return _draftJs.EditorState.forceSelection(editorStateWithoutCustomStyles, editorState.getSelection());
   };
 };
 
@@ -202,7 +201,7 @@ var createCustomStyles = exports.createCustomStyles = function createCustomStyle
     var newPrefix = '' + prefix + (0, _lodash4.default)(prop).toUpperCase() + '_';
     var copy = _extends({}, acc);
     copy[camelCased] = {
-      add: removeAndAdd(newPrefix),
+      add: addStyle(newPrefix),
       remove: removeStyle(newPrefix),
       toggle: toggleStyle(newPrefix),
       current: currentStyle(newPrefix),

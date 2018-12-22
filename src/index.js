@@ -51,13 +51,15 @@ export const mapSelectedCharacters = callback => editorState => {
     return block.set('characterList', chars);
   });
 
-  const newContentState = contentState.merge({
+  return contentState.merge({
     blockMap: blockMap.merge(newBlocks),
     selectionBefore: selectionState,
     selectionAfter: selectionState,
   });
+};
 
-  return EditorState.push(editorState, newContentState, 'change-inline-style');
+const getContentStateWithoutStyle = (prefix, editorState) => {
+  return mapSelectedCharacters(filterDynamicStyle(prefix))(editorState);
 };
 
 const filterDynamicStyle = prefix => char => {
@@ -69,7 +71,7 @@ const filterDynamicStyle = prefix => char => {
 const addStyle = prefix => (editorState, value) => {
   const style = prefix + value;
   const newContentState = Modifier.applyInlineStyle(
-    editorState.getCurrentContent(),
+    getContentStateWithoutStyle(prefix, editorState),
     editorState.getSelection(),
     style
   );
@@ -83,11 +85,7 @@ const addStyle = prefix => (editorState, value) => {
 };
 
 const removeStyle = prefix => editorState => {
-  return mapSelectedCharacters(filterDynamicStyle(prefix))(editorState);
-};
-
-const removeAndAdd = prefix => (editorState, style) => {
-  return addStyle(prefix)(removeStyle(prefix)(editorState), style);
+  return EditorState.push(editorState, getContentStateWithoutStyle(prefix, editorState), 'change-inline-style');
 };
 
 const filterOverrideStyles = (prefix, styles) => styles.filter(
@@ -126,11 +124,12 @@ const toggleStyle = prefix => (editorState, value) => {
     return toggleInlineStyleOverride(prefix, style, editorState);
   }
 
-  const editorStateWithoutCustomStyles = removeStyle(prefix)(editorState);
+  if (!currentStyle.has(style)) {
+    return addStyle(prefix)(editorState, value);
+  }
 
-  return !currentStyle.has(style)
-    ? addStyle(prefix)(editorStateWithoutCustomStyles, value)
-    : EditorState.forceSelection(editorStateWithoutCustomStyles, editorState.getSelection());
+  const editorStateWithoutCustomStyles = EditorState.push(editorState, getContentStateWithoutStyle(prefix, editorState), 'change-inline-style');
+  return EditorState.forceSelection(editorStateWithoutCustomStyles, editorState.getSelection());
 };
 
 /**
@@ -165,7 +164,7 @@ export const createCustomStyles = (prefix, conf) => {
     const newPrefix = `${prefix}${snakeCase(prop).toUpperCase()}_`;
     const copy = { ...acc };
     copy[camelCased] = {
-      add: removeAndAdd(newPrefix),
+      add: addStyle(newPrefix),
       remove: removeStyle(newPrefix),
       toggle: toggleStyle(newPrefix),
       current: currentStyle(newPrefix),
@@ -183,7 +182,6 @@ export const customStyleFns = fnList => prefixedStyle => {
   }, {});
 };
 
-// exporter
 export const getInlineStyles = (acc, block) => {
   const styleRanges = block.inlineStyleRanges;
   if (styleRanges && styleRanges.length) {
@@ -254,6 +252,31 @@ export const validatePrefix = prefix => {
   return `${prefix}_`;
 };
 
+export const inlineStyleImporterFn = prefix => (importerCustomStyleFn = null) => (el, inlineCreators) => {    
+  let css;
+  try {
+    css = el.style.cssText
+      .split(';')
+      .map(x => x.split(':'))
+      .filter(x => x.length > 1)
+      .reduce((acc, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      },{});
+  } catch (err) {
+    console.log(err, 'Error converting css string to object');
+    return {};
+  }
+  
+  const customStyles = Object
+    .entries(css)
+    .map(([key, value]) => snakeCase(`${prefix}${key}`).toUpperCase().concat('_' + value + ''));
+  
+  return importerCustomStyleFn 
+    ? importerCustomStyleFn(el, inlineCreators, customStyles)
+    : inlineCreators.Style(customStyles);
+};
+
 export default (conf, prefix = DEFAULT_PREFIX, customStyleMap = {}) => {
   if (!conf) {
     console.log('Expecting an array with css properties');
@@ -270,10 +293,11 @@ export default (conf, prefix = DEFAULT_PREFIX, customStyleMap = {}) => {
   const fnList = Object.keys(styles).map(style => styles[style].styleFn);
   const customStyleFn = customStyleFns(fnList);
   const exporter = inlineStyleExporter(checkedPrefix, customStyleMap);
-
+  
   return {
     styles,
     customStyleFn,
     exporter,
+    customInlineFn: inlineStyleImporterFn(checkedPrefix),
   };
 };
