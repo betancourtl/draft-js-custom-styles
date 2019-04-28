@@ -1,9 +1,15 @@
-import { EditorState, Modifier, convertToRaw, DefaultDraftInlineStyle } from 'draft-js';
-import { Map } from 'immutable';
-import camelCase from 'lodash.camelcase';
-import snakeCase from 'lodash.snakecase';
+import {
+  EditorState,
+  Modifier,
+  convertToRaw,
+  DefaultDraftInlineStyle
+} from 'draft-js'
+import { Map } from 'immutable'
+import snakeCase from 'lodash.snakecase'
 
-const DEFAULT_PREFIX = 'CUSTOM_';
+import { toReactCssCase } from './to-react-css-case'
+
+const DEFAULT_PREFIX = 'CUSTOM_'
 
 // This functionality has been taken from draft-js and modified for re-usability purposes.
 // Maps over the selected characters, and applies a function to each character.
@@ -142,7 +148,7 @@ const styleFn = (prefix, cssProp) => style => {
   const value = style.filter(val => val.startsWith(prefix)).first();
   if (value) {
     const newVal = value.replace(prefix, '');
-    return { [camelCase(cssProp)]: newVal };
+    return { [toReactCssCase(cssProp)]: newVal };
   }
   return {};
 };
@@ -160,7 +166,7 @@ const currentStyle = prefix => editorState => {
 
 export const createCustomStyles = (prefix, conf) => {
   return conf.reduce((acc, prop) => {
-    const camelCased = camelCase(prop);
+    const camelCased = toReactCssCase(prop);
     const newPrefix = `${prefix}${snakeCase(prop).toUpperCase()}_`;
     const copy = { ...acc };
     copy[camelCased] = {
@@ -226,7 +232,7 @@ export const createInlineStyleExportObject = (prefix, customStyleMap) => (acc, s
   const inlineStyle = {
     [style]: {
       style: {
-        [camelCase(css)]: value,
+        [toReactCssCase(css)]: value,
       },
     },
   };
