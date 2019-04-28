@@ -9,7 +9,6 @@ const isVendorCssProps = (cssProp) => {
 }
 
 export const toReactCssCase = (string) => {
-  console.log(string)
   const camelCased = camelCase(string)
 
   if (isVendorCssProps(string)) return camelCased.charAt(0).toUpperCase() + camelCased.slice(1)
