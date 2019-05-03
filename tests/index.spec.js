@@ -9,7 +9,7 @@ const blockInlineStyleRanges = (editorState, i = 0) => {
 };
 
 describe('createStyles', () => {
-  const config = ['color'];
+  const config = ['color', '-webkit-transform'];
   const { styles, customStyleFn, exporter } = createStyles(config);
 
   it('returns a toggle function', () => {
@@ -37,6 +37,10 @@ describe('createStyles', () => {
     const { styles: createdStyles } = createStyles();
     expect(createdStyles).to.deep.equal({});
   });
+  it('should handle vendor prefixes css properties in pascal case ', () => {
+    expect(styles).to.have.property('WebkitTransform')
+    expect(styles).to.not.have.property('webkitTransform')
+  })
 });
 
 describe('add()', () => {
@@ -303,7 +307,7 @@ describe('current()', () => {
 });
 
 describe('exporter()', () => {
-  const config = ['color', 'background-color'];
+  const config = ['color', 'background-color', '-webkit-text-fill-color', '-moz-border-radius', '-ms-border-radius'];
   const customStyleMap = {
     MARK: {
       backgroundColor: 'Yellow',
@@ -330,9 +334,38 @@ describe('exporter()', () => {
         style: {
           backgroundColor: 'green',
         },
-      },
+      }
     });
   });
+  it('should export vendor prefixed custom styles', () => {
+    const editorState = new Raw()
+      .addBlock('block 1')
+      .anchorKey(0)
+      .focusKey(5)
+      .toEditorState();
+    const newEditorState = styles.MozBorderRadius.add(editorState, '2px');
+    const newEditorState2 = styles.MsBorderRadius.add(newEditorState, '2px');
+    const newEditorState3 = styles.WebkitTextFillColor.add(newEditorState2, 'blue')
+    const inlineStyles = exporter(newEditorState3);
+
+    expect(inlineStyles).to.deep.equal({
+      'CUSTOM_MOZ_BORDER_RADIUS_2px': {
+        style: {
+          MozBorderRadius: '2px',
+        },
+      },
+      'CUSTOM_MS_BORDER_RADIUS_2px': {
+        style: {
+          MsBorderRadius: '2px',
+        },
+      },
+      'CUSTOM_WEBKIT_TEXT_FILL_COLOR_blue': {
+        style: {
+          WebkitTextFillColor: 'blue'
+        }
+      }
+    });
+  })
   it('should export the custom inline styles and ignore non-custom styles', () => {
     const editorState = new Raw()
       .addBlock('block 1')
