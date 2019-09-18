@@ -3,6 +3,7 @@
   "version": "2.1.1",
   "description": "Create dynamic inline styles for draft-js",
   "main": "build/index.js",
+  "types": "index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/webdeveloperpr/draft-js-custom-styles.git"
