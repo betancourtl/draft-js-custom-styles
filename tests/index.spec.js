@@ -52,7 +52,7 @@ describe('add()', () => {
     const inlineStyleRanges = blockInlineStyleRanges(newEditorState, 0);
     expect(inlineStyleRanges).to.deep.equal([
       {
-        style: 'CUSTOM_COLOR_red',
+        style: 'CUSTOM_color_red',
         length: 5,
         offset: 0,
       }]);
@@ -68,7 +68,7 @@ describe('add()', () => {
     const inlineStyleRanges = blockInlineStyleRanges(newEditorState2, 0);
     expect(inlineStyleRanges).to.deep.equal([
       {
-        style: 'CUSTOM_COLOR_green',
+        style: 'CUSTOM_color_green',
         length: 5,
         offset: 0,
       }]);
@@ -80,7 +80,7 @@ describe('add()', () => {
       .toEditorState();
     const newEditorState = styles.color.add(editorState, 'red');
     const override = newEditorState.getInlineStyleOverride();
-    expect(override.toJS()).to.deep.equal(OrderedSet(['CUSTOM_COLOR_red']).toJS());
+    expect(override.toJS()).to.deep.equal(OrderedSet(['CUSTOM_color_red']).toJS());
   });
   it('should add a 2 of the same prefixed styles to the same collapsed selection and show only the latest style', () => {
     const editorState = new Raw()
@@ -90,7 +90,7 @@ describe('add()', () => {
     const newEditorState = styles.color.add(editorState, 'red');
     const newEditorState2 = styles.color.add(newEditorState, 'blue');
     const override = newEditorState2.getInlineStyleOverride();
-    expect(override.toJS()).to.deep.equal(OrderedSet(['CUSTOM_COLOR_blue']).toJS());
+    expect(override.toJS()).to.deep.equal(OrderedSet(['CUSTOM_color_blue']).toJS());
   });
   it('should add 2 of the different prefixed styles to the same collapsed selection and show both', () => {
     const editorState = new Raw()
@@ -100,7 +100,7 @@ describe('add()', () => {
     const newEditorState = styles.color.add(editorState, 'red');
     const newEditorState2 = styles.fontSize.add(newEditorState, '12px');
     const override = newEditorState2.getInlineStyleOverride();
-    expect(override.toJS()).to.deep.equal(OrderedSet(['CUSTOM_COLOR_red', 'CUSTOM_FONT_SIZE_12px']).toJS());
+    expect(override.toJS()).to.deep.equal(OrderedSet(['CUSTOM_color_red', 'CUSTOM_fontSize_12px']).toJS());
   });
   it('should add 2 different colors and undo redo them one by one', () => {
     const editorState = new Raw()
@@ -113,7 +113,7 @@ describe('add()', () => {
     const inlineStyleRanges = blockInlineStyleRanges(newEditorState2, 0);
     expect(inlineStyleRanges).to.deep.equal([
       {
-        style: 'CUSTOM_COLOR_green',
+        style: 'CUSTOM_color_green',
         length: 5,
         offset: 0,
       }]);
@@ -121,7 +121,7 @@ describe('add()', () => {
     const newEditorState3 = EditorState.undo(newEditorState2);
     expect(blockInlineStyleRanges(newEditorState3, 0)).to.deep.equal([
       {
-        style: 'CUSTOM_COLOR_red',
+        style: 'CUSTOM_color_red',
         length: 5,
         offset: 0,
       }]);
@@ -129,7 +129,7 @@ describe('add()', () => {
     const newEditorState4 = EditorState.redo(newEditorState3);
     expect(blockInlineStyleRanges(newEditorState4, 0)).to.deep.equal([
       {
-        style: 'CUSTOM_COLOR_green',
+        style: 'CUSTOM_color_green',
         length: 5,
         offset: 0,
       }]);
@@ -168,7 +168,7 @@ describe('toggle()', () => {
     // Add styles
     expect(addedInlineStyleRanges).to.deep.equal([
       {
-        style: 'CUSTOM_COLOR_red',
+        style: 'CUSTOM_color_red',
         length: 5,
         offset: 0,
       }]);
@@ -188,7 +188,7 @@ describe('toggle()', () => {
     const inlineStyleRanges = blockInlineStyleRanges(newEditorState, 0);
     const inlineStyleOverride = newEditorState.getInlineStyleOverride();
     expect(inlineStyleRanges).to.deep.equal([]);
-    expect(inlineStyleOverride.toJS()).to.deep.equal(['CUSTOM_COLOR_red']);
+    expect(inlineStyleOverride.toJS()).to.deep.equal(['CUSTOM_color_red']);
   });
   it('should add and remove inlineStyleOverride to collapsed selection', () => {
     const editorState = new Raw()
@@ -214,7 +214,7 @@ describe('toggle()', () => {
     const inlineStyleRanges = blockInlineStyleRanges(newEditorState2, 0);
     const inlineStyleOverride = newEditorState2.getInlineStyleOverride();
     expect(inlineStyleRanges).to.deep.equal([]);
-    expect(inlineStyleOverride.toJS()).to.deep.equal(['CUSTOM_COLOR_blue']);
+    expect(inlineStyleOverride.toJS()).to.deep.equal(['CUSTOM_color_blue']);
   });
   it('should add 3 color styles, only blue should be set as inlineStyleOverride', () => {
     const editorState = new Raw()
@@ -228,7 +228,7 @@ describe('toggle()', () => {
     const inlineStyleRanges = blockInlineStyleRanges(newEditorState3, 0);
     const inlineStyleOverride = newEditorState3.getInlineStyleOverride();
     expect(inlineStyleRanges).to.deep.equal([]);
-    expect(inlineStyleOverride.toJS()).to.deep.equal(['CUSTOM_COLOR_blue']);
+    expect(inlineStyleOverride.toJS()).to.deep.equal(['CUSTOM_color_blue']);
   });
   it('should add 2 different styles, only color blue and font-size 12px should be set as inlineStyleOverride', () => {
     const editorState = new Raw()
@@ -243,7 +243,7 @@ describe('toggle()', () => {
     const inlineStyleRanges = blockInlineStyleRanges(newEditorState4, 0);
     const inlineStyleOverride = newEditorState4.getInlineStyleOverride();
     expect(inlineStyleRanges).to.deep.equal([]);
-    expect(inlineStyleOverride.toJS()).to.deep.equal(['CUSTOM_FONT_SIZE_12px', 'CUSTOM_COLOR_green']);
+    expect(inlineStyleOverride.toJS()).to.deep.equal(['CUSTOM_fontSize_12px', 'CUSTOM_color_green']);
   });
   it('should add 2 different colors and undo redo them one by one', () => {
     const editorState = new Raw()
@@ -256,7 +256,7 @@ describe('toggle()', () => {
     const inlineStyleRanges = blockInlineStyleRanges(newEditorState2, 0);
     expect(inlineStyleRanges).to.deep.equal([
       {
-        style: 'CUSTOM_COLOR_green',
+        style: 'CUSTOM_color_green',
         length: 5,
         offset: 0,
       }]);
@@ -264,7 +264,7 @@ describe('toggle()', () => {
     const newEditorState3 = EditorState.undo(newEditorState2);
     expect(blockInlineStyleRanges(newEditorState3, 0)).to.deep.equal([
       {
-        style: 'CUSTOM_COLOR_red',
+        style: 'CUSTOM_color_red',
         length: 5,
         offset: 0,
       }]);
@@ -272,7 +272,7 @@ describe('toggle()', () => {
     const newEditorState4 = EditorState.redo(newEditorState3);
     expect(blockInlineStyleRanges(newEditorState4, 0)).to.deep.equal([
       {
-        style: 'CUSTOM_COLOR_green',
+        style: 'CUSTOM_color_green',
         length: 5,
         offset: 0,
       }]);
@@ -283,7 +283,7 @@ describe('customStyleFn()', () => {
   const config = ['color'];
   const { customStyleFn } = createStyles(config);
   it('should create a css object from a string', () => {
-    const result = customStyleFn(OrderedSet(['CUSTOM_COLOR_red']));
+    const result = customStyleFn(OrderedSet(['CUSTOM_color_red']));
     expect(result).to.deep.equal({ color: 'red' });
   });
 });
@@ -303,7 +303,7 @@ describe('current()', () => {
 });
 
 describe('exporter()', () => {
-  const config = ['color', 'background-color'];
+  const config = ['color', 'background-color', 'font-family'];
   const customStyleMap = {
     MARK: {
       backgroundColor: 'Yellow',
@@ -321,12 +321,12 @@ describe('exporter()', () => {
     const newEditorState2 = styles.backgroundColor.add(newEditorState, 'green');
     const inlineStyles = exporter(newEditorState2);
     expect(inlineStyles).to.deep.equal({
-      'CUSTOM_COLOR_#FF0000': {
+      'CUSTOM_color_#FF0000': {
         style: {
           color: '#FF0000',
         },
       },
-      CUSTOM_BACKGROUND_COLOR_green: {
+      CUSTOM_backgroundColor_green: {
         style: {
           backgroundColor: 'green',
         },
@@ -344,7 +344,7 @@ describe('exporter()', () => {
     const newEditorState3 = styles.backgroundColor.add(newEditorState2, 'green');
     const inlineStyles = exporter(newEditorState3);
     expect(inlineStyles).to.deep.equal({
-      CUSTOM_COLOR_red: {
+      CUSTOM_color_red: {
         style: {
           color: 'red',
         },
@@ -354,7 +354,7 @@ describe('exporter()', () => {
           fontWeight: 'bold',
         },
       },
-      CUSTOM_BACKGROUND_COLOR_green: {
+      CUSTOM_backgroundColor_green: {
         style: {
           backgroundColor: 'green',
         },
@@ -373,7 +373,7 @@ describe('exporter()', () => {
     const newEditorState4 = styles.backgroundColor.add(newEditorState3, 'green');
     const inlineStyles = exporter(newEditorState4);
     expect(inlineStyles).to.deep.equal({
-      CUSTOM_COLOR_red: {
+      CUSTOM_color_red: {
         style: {
           color: 'red',
         },
@@ -383,7 +383,7 @@ describe('exporter()', () => {
           fontWeight: 'bold',
         },
       },
-      CUSTOM_BACKGROUND_COLOR_green: {
+      CUSTOM_backgroundColor_green: {
         style: {
           backgroundColor: 'green',
         },
@@ -401,7 +401,7 @@ describe('exporter()', () => {
     const newEditorState3 = styles.backgroundColor.add(newEditorState2, 'green');
     const inlineStyles = exporter(newEditorState3);
     expect(inlineStyles).to.deep.equal({
-      CUSTOM_COLOR_red: {
+      CUSTOM_color_red: {
         style: {
           color: 'red',
         },
@@ -412,7 +412,7 @@ describe('exporter()', () => {
           fontStyle: 'italic',
         },
       },
-      CUSTOM_BACKGROUND_COLOR_green: {
+      CUSTOM_backgroundColor_green: {
         style: {
           backgroundColor: 'green',
         },
@@ -431,7 +431,7 @@ describe('exporter()', () => {
     const newEditorState4 = styles.backgroundColor.add(newEditorState3, 'green');
     const inlineStyles = exporter(newEditorState4);
     expect(inlineStyles).to.deep.equal({
-      CUSTOM_COLOR_red: {
+      CUSTOM_color_red: {
         style: {
           color: 'red',
         },
@@ -447,7 +447,7 @@ describe('exporter()', () => {
           fontStyle: 'italic',
         },
       },
-      CUSTOM_BACKGROUND_COLOR_green: {
+      CUSTOM_backgroundColor_green: {
         style: {
           backgroundColor: 'green',
         },
@@ -481,9 +481,29 @@ describe('exporter()', () => {
           fontWeight: 'bold',
         },
       },
-      CUSTOM_COLOR_green: {
+      CUSTOM_color_green: {
         style: {
           color: 'green',
+        },
+      },
+    });
+  });
+  it('should properly process inline styles with underscore in value', () => {
+    const editorState = new Raw()
+        .addBlock('block 1')
+        .anchorKey(0)
+        .focusKey(5)
+        .toEditorState();
+    const toggleInlineStyle = (
+        _editorState,
+        style
+    ) => RichUtils.toggleInlineStyle(_editorState, style);
+    const newEditorState1 = styles.fontFamily.add(editorState, 'KaiTi_GB2312');
+    const inlineStyles = exporter(newEditorState1);
+    expect(inlineStyles).to.deep.equal({
+      CUSTOM_fontFamily_KaiTi_GB2312: {
+        style: {
+          fontFamily: 'KaiTi_GB2312',
         },
       },
     });
