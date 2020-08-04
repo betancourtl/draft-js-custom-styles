@@ -15,10 +15,6 @@ var _lodash = require('lodash.camelcase');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _lodash3 = require('lodash.snakecase');
-
-var _lodash4 = _interopRequireDefault(_lodash3);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -198,7 +194,7 @@ var currentStyle = function currentStyle(prefix) {
 var createCustomStyles = exports.createCustomStyles = function createCustomStyles(prefix, conf) {
   return conf.reduce(function (acc, prop) {
     var camelCased = (0, _lodash2.default)(prop);
-    var newPrefix = '' + prefix + (0, _lodash4.default)(prop).toUpperCase() + '_';
+    var newPrefix = '' + prefix + camelCased + '_';
     var copy = _extends({}, acc);
     copy[camelCased] = {
       add: addStyle(newPrefix),
@@ -250,7 +246,7 @@ var createInlineStyleExportObject = exports.createInlineStyleExportObject = func
       }));
     }
 
-    var regex = new RegExp(prefix + '(.+)_(.+)');
+    var regex = new RegExp(prefix + '([^_]+)_(.+)');
     var match = style.match(regex);
 
     // no matches
@@ -259,10 +255,10 @@ var createInlineStyleExportObject = exports.createInlineStyleExportObject = func
     }
 
     // custom styles
-    var css = match[1].toLowerCase();
+    var css = match[1];
     var value = match[2];
     var inlineStyle = _defineProperty({}, style, {
-      style: _defineProperty({}, (0, _lodash2.default)(css), value)
+      style: _defineProperty({}, css, value)
     });
 
     return Object.assign({}, acc, inlineStyle);
